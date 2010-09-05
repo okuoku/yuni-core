@@ -1,4 +1,4 @@
-(library (yuni invalid-form)
+(library (yuni util invalid-form)
          (export define-invalid-form define-invalid-forms)
          (import (rnrs))
 

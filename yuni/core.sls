@@ -2,18 +2,22 @@
          (export ~ :=)
          (import (rnrs) 
                  (yuni miniobj)
-                 (yuni invalid-form))
+                 (yuni miniobj minitype)
+                 (yuni util invalid-form))
 
+; internal
 (define-syntax ref
   (syntax-rules ()
     ((_ target slot)
      (miniobj-ref target slot))))
 
+; internal
 (define-syntax refset!
   (syntax-rules ()
     ((_ target slot value)
      (miniobj-set! target slot value))))
 
+; ~: generic, recursive ref/set syntax.
 (define-syntax ~
   (syntax-rules (:=)
     ((_ target slot := obj)

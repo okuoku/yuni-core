@@ -8,7 +8,7 @@
                  make-minitype-refslot
                  make-minitype-setslot!)
          (import (rnrs)
-                 (yuni simple-struct))
+                 (yuni compat simple-struct))
 
 (define (check? obj sym)
   (and
@@ -106,7 +106,7 @@
     (k obj slot value)))
 (define-syntax define-minitype
   (syntax-rules ()
-    ((_ name id spec)
-     (define name (make-minitype id 'spec)))))
+    ((_ name spec)
+     (define name (make-minitype 'name 'spec)))))
 
 )
