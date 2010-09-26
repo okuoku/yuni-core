@@ -1,5 +1,9 @@
 (library (yuni core)
-         (export ~ :=)
+         (export ~ := 
+                 define-composite
+                 let-with
+                 let-with1
+                 make)
          (import (rnrs) 
                  (yuni miniobj)
                  (yuni miniobj minitype)
@@ -26,6 +30,56 @@
      (ref target slot))
     ((_ target slot next-slot ...)
      (~ (ref target slot) next-slot ...))))
+
+; define-composite
+(define-syntax define-composite
+  (syntax-rules ()
+    ((_ typename slots)
+     (define-minitype typename slots))))
+
+; ~new
+(define-syntax ~new
+  (syntax-rules ()
+    ((_ typename)
+     (make-minitype-obj typename))))
+
+; let-with
+(define-syntax let-with
+  (syntax-rules ()
+    ((_ (specs0) body ...)
+     (let-with1 specs0 body ...))
+    ((_ (specs0 specs1 ...) body ...)
+     (let-with1 specs0 (let-with (specs1 ...) body ...)))))
+
+(define-syntax let-binder
+  (syntax-rules ()
+    ((_ OBJ bind0)
+     (~ OBJ 'bind0))))
+
+(define-syntax let-with1
+  (syntax-rules ()
+    ((_ (OBJ bind0) body ...)
+     (let ((bind0 (let-binder OBJ bind0)))
+       body ...))
+    ((_ (OBJ bind0 bind1 ...) body ...)
+     (let ((bind0 (let-binder OBJ bind0)))
+       (let-with1 (OBJ bind1 ...)
+                  body ...)))))
+
+; make
+(define-syntax make-apply-rule
+  (syntax-rules ()
+    ((_ NAME (slot body))
+     (let ((result body))
+       (~ NAME 'slot := result)))))
+
+(define-syntax make
+  (syntax-rules ()
+    ((_ TYPE rule0 ...)
+     (let ((new-object ((~new TYPE))))
+       (make-apply-rule new-object rule0)
+       ...
+       new-object))))
 
 (define-invalid-form :=)
 
