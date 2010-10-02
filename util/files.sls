@@ -11,6 +11,7 @@
            path-extension
            path-sans-extension
            path-swap-extension
+           file->sexp
 
            ;; nmosh utils
            expand-loadpath
@@ -196,6 +197,16 @@
     basename
     (string-append basename "." newext)))
 
+(define (file->sexp pth)
+  (with-input-from-file
+    pth
+    (lambda ()
+      (define (itr cur)
+        (let ((r (read)))
+          (if (eof-object? r)
+            (reverse cur)
+            (itr (cons r cur)))))
+      (itr '()))))
 
 ;; tree walk
 (define (directory-walk pth proc)

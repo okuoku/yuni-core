@@ -6,6 +6,7 @@
          (import
            (rnrs)
            (yuni core)
+           (yuni files)
            ;(yuni util messages)
            )
 
@@ -51,17 +52,6 @@
   (define (proc e)
     (string-append e sep str))
   (map proc pr*))
-
-(define (file->sexp pth)
-  (with-input-from-file
-    pth
-    (lambda ()
-      (define (itr cur)
-        (let ((r (read)))
-          (if (eof-object? r)
-            (reverse cur)
-            (itr (cons r cur)))))
-      (itr '()))))
 
 (define (drop-versions n)
   (define (itr cur rest)
