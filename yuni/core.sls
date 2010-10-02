@@ -1,9 +1,8 @@
 (library (yuni core)
          (export ~ := 
                  define-composite
-                 let-with
-                 let-with1
-                 make)
+                 let-with let-with*
+                 make touch!)
          (import (rnrs) 
                  (yuni miniobj)
                  (yuni miniobj minitype)
@@ -46,25 +45,27 @@
 ; let-with
 (define-syntax let-with
   (syntax-rules ()
-    ((_ (specs0) body ...)
-     (let-with1 specs0 body ...))
+    ((_ OBJ (specs0 specs1 ...) body ...)
+     (let-with-binder OBJ specs0
+                      (let-with OBJ (specs1 ...) body ...)))
+    ((_ OBJ (specs0) body ...)
+     (let-with-binder OBJ specs0 body ...))))
+
+(define-syntax let-with*
+  (syntax-rules ()
     ((_ (specs0 specs1 ...) body ...)
-     (let-with1 specs0 (let-with (specs1 ...) body ...)))))
+     (let-with specs0 (let-with* (specs1 ...) body ...)))
+    ((_ (specs0) body ...)
+     (let-with specs0 body ...))))
 
-(define-syntax let-binder
+(define-syntax let-with-binder
   (syntax-rules ()
-    ((_ OBJ bind0)
-     (~ OBJ 'bind0))))
-
-(define-syntax let-with1
-  (syntax-rules ()
-    ((_ (OBJ bind0) body ...)
-     (let ((bind0 (let-binder OBJ bind0)))
+    ((_ OBJ (bindname name) body ...)
+     (let ((bindname (~ OBJ 'name)))
        body ...))
-    ((_ (OBJ bind0 bind1 ...) body ...)
-     (let ((bind0 (let-binder OBJ bind0)))
-       (let-with1 (OBJ bind1 ...)
-                  body ...)))))
+    ((_ OBJ name body ...)
+     (let ((name (~ OBJ 'name)))
+       body ...))))
 
 ; make
 (define-syntax make-apply-rule
@@ -80,6 +81,18 @@
        (make-apply-rule new-object rule0)
        ...
        new-object))))
+
+(define-syntax touch!-apply-spec!
+  (syntax-rules ()
+    ((_ OBJ (slot body))
+     (~ OBJ 'slot := body))))
+
+(define-syntax touch!
+  (syntax-rules ()
+    ((_ OBJ spec0 ...)
+     (touch!-apply-spec! OBJ spec0)
+     ...
+     OBJ)))
 
 (define-invalid-form :=)
 
