@@ -45,6 +45,8 @@
 ; let-with
 (define-syntax let-with
   (syntax-rules ()
+    ((_ OBJ () body ...)
+     (let () body ...))
     ((_ OBJ (specs0 specs1 ...) body ...)
      (let-with-binder OBJ specs0
                       (let-with OBJ (specs1 ...) body ...)))
@@ -84,6 +86,8 @@
 
 (define-syntax touch!-apply-spec!
   (syntax-rules ()
+    ((_ OBJ ((slot) body ...))
+     (~ OBJ 'slot := body ...))
     ((_ OBJ ((bind slot) body ...))
      (let-with OBJ ((bind slot))
                (~ OBJ 'slot := body ...)))

@@ -13,7 +13,8 @@
                  (mosh)
                  (mosh file))
 (define (system-msdos-style-path?)
-  (string=? "win32" (host-os)))
+  (or (string=? "win32" (host-os))
+      (string=? "win64" (host-os))))
 
 )
 
