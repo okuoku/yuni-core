@@ -45,13 +45,11 @@
 ; let-with
 (define-syntax let-with
   (syntax-rules ()
-    ((_ OBJ () body ...)
-     (let () body ...))
+    ((_ OBJ (specs0) body ...)
+     (let-with-binder OBJ specs0 body ...))
     ((_ OBJ (specs0 specs1 ...) body ...)
      (let-with-binder OBJ specs0
-                      (let-with OBJ (specs1 ...) body ...)))
-    ((_ OBJ (specs0) body ...)
-     (let-with-binder OBJ specs0 body ...))))
+                      (let-with OBJ (specs1 ...) body ...)))))
 
 (define-syntax let-with*
   (syntax-rules ()
@@ -70,7 +68,7 @@
        body ...))))
 
 ; make
-(define-syntax make-apply-rule
+(define-syntax make-apply-rule1!
   (syntax-rules ()
     ((_ NAME (slot body))
      (let ((result body))
@@ -80,28 +78,49 @@
   (syntax-rules ()
     ((_ TYPE rule0 ...)
      (let ((new-object ((~new TYPE))))
-       (make-apply-rule new-object rule0)
+       (make-apply-rule1! new-object rule0)
        ...
        new-object))))
 
-(define-syntax touch!-apply-spec!
+(define-syntax touch!-bind-spec1
   (syntax-rules ()
-    ((_ OBJ ((slot) body ...))
-     (~ OBJ 'slot := body ...))
-    ((_ OBJ ((bind slot) body ...))
+    ((_ OBJ (slot) body ...)
+     (begin body ...)) ; nothing to do (legacy form)
+    ((_ OBJ (#f slot) body ...)
+     (begin body ...)) ; nothing to do
+    ((_ OBJ (bind slot) body ...)
      (let-with OBJ ((bind slot))
-               (~ OBJ 'slot := body ...)))
-    ((_ OBJ (slot body ...))
-     (let-with OBJ (slot)
-               (~ OBJ 'slot := body ...)))))
+               body ...))
+    ((_ OBJ slot body ...)
+     (touch!-bind-spec1 OBJ (slot slot) body ...))))
+
+(define-syntax touch!-bind-spec
+  (syntax-rules ()
+    ((_ OBJ (spec0) body ...)
+     (touch!-bind-spec1 OBJ spec0 body ...))
+    ((_ OBJ (spec0 spec1 ...) body ...)
+     (touch!-bind-spec1 OBJ spec0
+                        (touch!-bind-spec OBJ (spec1 ...) body ...)))))
+
+(define-syntax touch!-apply-spec1!
+  (syntax-rules ()
+    ((_ OBJ (slot) body ...)
+     (~ OBJ 'slot := body ...))
+    ((_ OBJ (#f slot) body ...)
+     (~ OBJ 'slot := body ...))
+    ((_ OBJ (bind slot) body ...)
+     (~ OBJ 'slot := body ...))
+    ((_ OBJ slot body ...)
+     (~ OBJ 'slot := body ...))))
 
 (define-syntax touch!
   (syntax-rules ()
-    ((_ OBJ spec0 ...)
+    ((_ OBJ (bind-spec0 body-spec0) ...)
      (begin
-       (touch!-apply-spec! OBJ spec0)
-       ...
-       OBJ))))
+       (touch!-bind-spec OBJ (bind-spec0 ...)
+                         (touch!-apply-spec1! OBJ bind-spec0 body-spec0)
+                         ...
+                         OBJ)))))
 
 (define-invalid-form :=)
 
