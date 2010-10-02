@@ -84,15 +84,20 @@
 
 (define-syntax touch!-apply-spec!
   (syntax-rules ()
-    ((_ OBJ (slot body))
-     (~ OBJ 'slot := body))))
+    ((_ OBJ ((bind slot) body ...))
+     (let-with OBJ ((bind slot))
+               (~ OBJ 'slot := body ...)))
+    ((_ OBJ (slot body ...))
+     (let-with OBJ (slot)
+               (~ OBJ 'slot := body ...)))))
 
 (define-syntax touch!
   (syntax-rules ()
     ((_ OBJ spec0 ...)
-     (touch!-apply-spec! OBJ spec0)
-     ...
-     OBJ)))
+     (begin
+       (touch!-apply-spec! OBJ spec0)
+       ...
+       OBJ))))
 
 (define-invalid-form :=)
 
