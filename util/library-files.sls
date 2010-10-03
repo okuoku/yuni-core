@@ -36,7 +36,7 @@
 
 ;; legacy encoding for escaped paths based on URLencode
 ;; from nmosh
-(define (symbol->libpathelement sym)
+(define (symbol->libpathelement s)
   ;; convert a nibble (0-15) into 0-9a-f
   (define (nibblechar n)
     (cond
