@@ -11,13 +11,17 @@
            path-extension
            path-sans-extension
            path-swap-extension
-           file->sexp
+           file->list
+           file->sexp-list
+           file->string-list
 
            ;; defined in file-ops
            file-regular?
            file-directory?
            directory-list
            current-directory
+           create-directory
+           delete-directory
            system-msdos-style-path?
 
            ;; nmosh utils
@@ -161,7 +165,7 @@
     (if (pair? rest)
       (if (char=? (car rest) #\/)
         (cons
-          (list->string (reverse rest))
+          (list->string (reverse (cdr rest)))
           (list->string cur)) ;basename
         (itr (cons (car rest) cur) (cdr rest)))
       (cons "" pth)))
@@ -204,16 +208,22 @@
     basename
     (string-append basename "." newext)))
 
-(define (file->sexp pth)
+(define (file->list proc pth)
   (with-input-from-file
     pth
     (lambda ()
       (define (itr cur)
-        (let ((r (read)))
+        (let ((r (proc (current-input-port))))
           (if (eof-object? r)
             (reverse cur)
             (itr (cons r cur)))))
       (itr '()))))
+
+(define (file->sexp-list pth)
+  (file->list read pth))
+
+(define (file->string-list pth)
+  (file->list get-line pth))
 
 ;; tree walk
 (define (directory-walk pth proc)

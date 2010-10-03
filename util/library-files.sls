@@ -2,9 +2,11 @@
          (export 
            make-library-env
            search-library-bundle
-           file->library-bundle)
+           file->library-bundle
+           symbol->path)
          (import
            (rnrs)
+           (only (rnrs r5rs) quotient remainder)
            (yuni core)
            (yuni util files)
            ;(yuni util messages)
@@ -36,7 +38,7 @@
 
 ;; legacy encoding for escaped paths based on URLencode
 ;; from nmosh
-(define (symbol->libpathelement s)
+(define (symbol->path s)
   ;; convert a nibble (0-15) into 0-9a-f
   (define (nibblechar n)
     (cond
@@ -60,12 +62,12 @@
 
 (define (spec->path spec)
   (define (itr cur e)
-    (string-append cur "/" (symbol->libpathelement e)))
+    (string-append cur "/" (symbol->path e)))
 
   (let* ((truespec (drop-versions spec))
          (first (car truespec))
          (next (cdr truespec)))
-    (fold-left itr (symbol->libpathelement first) next)))
+    (fold-left itr (symbol->path first) next)))
 
 (define (expand-suffix sep str sf*)
   (define (proc e)
@@ -90,7 +92,7 @@
   (itr '() n))
 
 (define (file->library-bundle pth)
-  (define l (file->sexp pth))
+  (define l (file->sexp-list pth))
   (define (proc prog)
     ;; bind clauses
     (let ((name (cadr prog))

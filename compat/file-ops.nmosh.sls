@@ -6,6 +6,10 @@
            directory-list
            current-directory
 
+           ;; mosh directory procedure
+           create-directory
+           delete-directory
+
            ;; ancient
            system-msdos-style-path?
            )
