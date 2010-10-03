@@ -6,7 +6,7 @@
          (import
            (rnrs)
            (yuni core)
-           (yuni files)
+           (yuni util files)
            ;(yuni util messages)
            )
 
@@ -68,8 +68,6 @@
 (define (file->library-bundle pth)
   (define l (file->sexp pth))
   (define (proc prog)
-    ;; FIXME: check library here
-
     ;; bind clauses
     (let ((name (cadr prog))
           (export (caddr prog))
@@ -80,7 +78,15 @@
             (imports #f)
             (code #f)
             (path pth))))
-  (fold-left append '() (map proc l)))
+  (define (itr cur prog)
+    (if (pair? prog)
+      (let ((lib? (car prog))
+            (next (cdr prog)))
+        (if (and (list? lib?) (eq? (car lib?) 'library))
+          (itr (cons (proc lib?) cur) next)
+          (itr cur next)))
+      cur))
+  (itr '() l))
 
 (define (search-library-bundle env spec) ;; => (* library)
   (define core-name (spec->path spec))

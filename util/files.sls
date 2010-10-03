@@ -13,6 +13,13 @@
            path-swap-extension
            file->sexp
 
+           ;; defined in file-ops
+           file-regular?
+           file-directory?
+           directory-list
+           current-directory
+           system-msdos-style-path?
+
            ;; nmosh utils
            expand-loadpath
            ;; yuni files
