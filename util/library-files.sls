@@ -34,14 +34,38 @@
   (touch! env (search-path*
                 (append search-path* (list pth)))))
 
+;; legacy encoding for escaped paths based on URLencode
+;; from nmosh
+(define (symbol->libpathelement sym)
+  ;; convert a nibble (0-15) into 0-9a-f
+  (define (nibblechar n)
+    (cond
+      ((<= 0 n 9) (integer->char (+ n #x30)))
+      (else (integer->char (+ (- 10 n) #x61)))))
+  (define (between? x y z) ; Gauche does not support 3 args char<=?
+    (and (char<=? x y)
+         (char<=? y z)))
+  (define (convc c)
+    (cond ;;from psyntax
+      ((or (between? #\a c #\z)
+           (between? #\A c #\Z)
+           (between? #\0 c #\9)
+           (memv c '(#\- #\. #\_ #\~))) (list c))
+      (else (let ((i (char->integer c)))
+              (list
+                #\%
+                (nibblechar (quotient i 16))
+                (nibblechar (remainder i 16)))))))
+  (list->string (apply append (map convc (string->list (symbol->string s))))))
+
 (define (spec->path spec)
   (define (itr cur e)
-    (string-append cur "/" (symbol->string e)))
+    (string-append cur "/" (symbol->libpathelement e)))
 
   (let* ((truespec (drop-versions spec))
          (first (car truespec))
          (next (cdr truespec)))
-    (fold-left itr (symbol->string first) next)))
+    (fold-left itr (symbol->libpathelement first) next)))
 
 (define (expand-suffix sep str sf*)
   (define (proc e)
