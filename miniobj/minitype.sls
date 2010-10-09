@@ -4,7 +4,7 @@
                  define-minitype
                  make-minitype
                  make-minitype-obj
-                 make-minitype-predicate
+                 minitype-predicate
                  make-minitype-refslot
                  make-minitype-setslot!)
          (import (rnrs)
@@ -63,13 +63,12 @@
           minitype
           (make-vector (length (minitype-slot minitype)))))))
 
-(define (make-minitype-predicate minitype)
+(define (minitype-predicate obj minitype)
   (check-minitype minitype)
-  (lambda (obj)
-    (and
-      (minitype-obj? obj)
-      (eq? minitype
-           (minitype-obj-type obj)))))
+  (and
+    (minitype-obj? obj)
+    (eq? minitype
+         (minitype-obj-type obj))))
 
 (define (scan-slot minitype slot)
   (define (number cur rest)

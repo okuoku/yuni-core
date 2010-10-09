@@ -1,7 +1,9 @@
 (library (yuni core)
          (export ~ := 
+                 define*
                  define-composite
                  let-with let-with*
+                 is-a?
                  make touch!)
          (import (rnrs) 
                  (yuni miniobj)
@@ -48,8 +50,9 @@
     ((_ OBJ (specs0) body ...)
      (let-with-binder OBJ specs0 body ...))
     ((_ OBJ (specs0 specs1 ...) body ...)
-     (let-with-binder OBJ specs0
-                      (let-with OBJ (specs1 ...) body ...)))))
+     (let ((myobj OBJ))
+       (let-with-binder myobj specs0
+                        (let-with myobj (specs1 ...) body ...))))))
 
 (define-syntax let-with*
   (syntax-rules ()
@@ -66,6 +69,11 @@
     ((_ OBJ name body ...)
      (let ((name (~ OBJ 'name)))
        body ...))))
+
+(define-syntax is-a?
+  (syntax-rules ()
+    ((_ obj type)
+     (minitype-predicate obj type))))
 
 ; make
 (define-syntax make-apply-rule1!
@@ -116,11 +124,58 @@
 (define-syntax touch!
   (syntax-rules ()
     ((_ OBJ (bind-spec0 body-spec0) ...)
-     (begin
-       (touch!-bind-spec OBJ (bind-spec0 ...)
-                         (touch!-apply-spec1! OBJ bind-spec0 body-spec0)
+     (let ((myobj OBJ))
+       (touch!-bind-spec myobj (bind-spec0 ...)
+                         (touch!-apply-spec1! myobj bind-spec0 body-spec0)
                          ...
-                         OBJ)))))
+                         myobj)))))
+
+
+(define (type-check sym id-name type-name id type)
+  (if (is-a? id type)
+    'ok
+    (begin ;; FIXME
+      (display "type violation!!")(newline)
+      (display (list sym id-name type-name id type))(newline)
+      (car #f))))
+
+(define-syntax annotate-check
+  (syntax-rules ()
+    ((_ sym (id type))
+     (type-check sym 'id 'type id type))
+    ((_ sym id)
+     'ok)))
+
+(define-syntax raw-name
+  (syntax-rules ()
+    ((_ id) id)
+    ((_ (id type)) id)))
+
+(define-syntax lambda*0-itr
+  (syntax-rules ()
+    ((_ (cur ...) ((id bogus) rest0 ...) body ...)
+     (lambda*0-itr (cur ... id) (rest0 ...) body ...))
+    ((_ (cur ...) (id rest0 ...) body ...)
+     (lambda*0-itr (cur ... id) (rest0 ...) body ...))
+    ((_ (cur ...) () body ...)
+     (lambda (cur ...) body ...))))
+
+(define-syntax lambda*0
+  (syntax-rules ()
+    ((_ (spec0 ...) body ...)
+     (lambda*0-itr () (spec0 ...) body ...))))
+
+(define-syntax annotated-lambda
+  (syntax-rules ()
+    ((_ sym (spec0 ...) body ...)
+     (lambda*0 (spec0 ...)
+       (annotate-check sym spec0) ...
+       body ...))))
+
+(define-syntax define*
+  (syntax-rules ()
+    ((_ (name spec0 ...) body ...)
+     (define name (annotated-lambda 'name (spec0 ...) body ...)))))
 
 (define-invalid-form :=)
 

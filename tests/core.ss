@@ -24,12 +24,18 @@
 
 (test-begin "let-with syntax")
 
-(let-with ((obj0 slot0 slot1 slot2))
+(let-with obj0 (slot0 slot1 slot2)
           (test-eq 'a slot0)
           (test-eq 'b slot1)
           (test-eq 'c slot2))
 
 (test-end "let-with syntax")
 
+(test-begin "define* syntax")
+
+(define* (proc0 (x testtype)) 'bogus)
+(define* (proc1 (x testtype) a) 'bogus)
+
+(test-end "define* syntax")
 
 (test-end "yuni core")
