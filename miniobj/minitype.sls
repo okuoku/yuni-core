@@ -5,6 +5,7 @@
                  make-minitype
                  make-minitype-obj
                  minitype-predicate
+                 minitype-typeof
                  make-minitype-refslot
                  make-minitype-setslot!)
          (import (rnrs)
@@ -69,6 +70,12 @@
     (minitype-obj? obj)
     (eq? minitype
          (minitype-obj-type obj))))
+
+(define (minitype-typeof obj) ;; FIXME: should allow RnRS types(like lists, vectors, ...)..
+  (and
+    (minitype-obj? obj)
+    (minitype-obj-type obj)))
+
 
 (define (scan-slot minitype slot)
   (define (number cur rest)

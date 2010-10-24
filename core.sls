@@ -5,6 +5,7 @@
                  define-composite
                  let-with let-with*
                  is-a?
+                 typeof
                  make touch!)
          (import (rnrs) 
                  (yuni miniobj)
@@ -70,6 +71,11 @@
     ((_ OBJ name body ...)
      (let ((name (~ OBJ 'name)))
        body ...))))
+
+(define-syntax typeof
+  (syntax-rules ()
+    ((_ obj)
+     (minitype-typeof obj))))
 
 (define-syntax is-a?
   (syntax-rules ()
@@ -171,12 +177,12 @@
     ((_ sym (spec0 ...) body ...)
      (lambda*0 (spec0 ...)
        (annotate-check sym spec0) ...
-       body ...))))
+       (let () body ...)))))
 
 (define-syntax define*
   (syntax-rules ()
     ((_ (name spec0 ...) body ...)
-     (define name (lambda* 'name (spec0 ...) (let () body ...))))
+     (define name (lambda* 'name (spec0 ...) body ...)))
     ((_ name spec)
      (define-composite name spec))))
 
