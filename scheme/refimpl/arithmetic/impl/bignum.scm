@@ -24,42 +24,42 @@
 (define-record-discloser :bignum
   (lambda (r)
     (list 'bignum
-	  (bignum->r5rs r))))
+	  (bignum->core r))))
 
 (define (fixnum->bignum m)
-  (cond ((fixnum>=? m (r5rs->fixnum 0))
-	 (make-bignum (r5rs->fixnum 1) (fixnum->magnitude m)))
+  (cond ((fixnum>=? m (core->fixnum 0))
+	 (make-bignum (core->fixnum 1) (fixnum->magnitude m)))
 	((fixnum=? m (least-fixnum))
-	 (make-bignum (r5rs->fixnum -1) fixnum-min-magnitude))
+	 (make-bignum (core->fixnum -1) fixnum-min-magnitude))
 	(else
-	 (make-bignum (r5rs->fixnum -1) (fixnum->magnitude (fixnum- m))))))
+	 (make-bignum (core->fixnum -1) (fixnum->magnitude (fixnum- m))))))
 
-(define (r5rs->bignum m)
+(define (core->bignum m)
   (if (bignum? m)
       m
       (cond ((core:>= m 0)
-	     (make-bignum (r5rs->fixnum 1) (r5rs->magnitude m)))
-	    ((core:= m (fixnum->r5rs (least-fixnum)))
-	     (make-bignum (r5rs->fixnum -1) fixnum-min-magnitude))
+	     (make-bignum (core->fixnum 1) (core->magnitude m)))
+	    ((core:= m (fixnum->core (least-fixnum)))
+	     (make-bignum (core->fixnum -1) fixnum-min-magnitude))
 	    (else
-	     (make-bignum (r5rs->fixnum -1) (r5rs->magnitude (core:- 0 m)))))))
+	     (make-bignum (core->fixnum -1) (core->magnitude (core:- 0 m)))))))
 
-(define (r5rs->magnitude n)
-  (let ((radix (fixnum->r5rs radix)))
+(define (core->magnitude n)
+  (let ((radix (fixnum->core radix)))
     (let recur ((n n))
       (if (core:= n 0)
 	  zero-magnitude
-	  (let ((digit (r5rs->fixnum (core:remainder n radix))))
+	  (let ((digit (core->fixnum (core:remainder n radix))))
 	    (adjoin-digit digit
 			  (recur (core:quotient n radix))))))))
 
-(define (bignum->r5rs n)             ;For debugging
-  (core:* (fixnum->r5rs (bignum-sign n))
+(define (bignum->core n)             ;For debugging
+  (core:* (fixnum->core (bignum-sign n))
      (let recur ((digits (bignum-magnitude n)))
        (if (null? digits)
 	   0
-	   (core:+ (fixnum->r5rs (car digits))
-	      (core:* (recur (cdr digits)) (fixnum->r5rs radix)))))))
+	   (core:+ (fixnum->core (car digits))
+	      (core:* (recur (cdr digits)) (fixnum->core radix)))))))
 
 (define (make-integer sign mag)
   (if (fixnum-positive? sign)
@@ -189,25 +189,25 @@
 
 ; Fixnum arithmetic without overflow checking sucks
 (define log-radix
-  (let ((max (fixnum-quotient (greatest-fixnum) (r5rs->fixnum 2)))
-	(min (fixnum-quotient (least-fixnum) (r5rs->fixnum 2))))
-    (let loop ((l (r5rs->fixnum 1))
-	       (r (r5rs->fixnum 1))
-	       (rm (r5rs->fixnum -1)))
+  (let ((max (fixnum-quotient (greatest-fixnum) (core->fixnum 2)))
+	(min (fixnum-quotient (least-fixnum) (core->fixnum 2))))
+    (let loop ((l (core->fixnum 1))
+	       (r (core->fixnum 1))
+	       (rm (core->fixnum -1)))
       (if (or (fixnum>=? r max)
 	      (fixnum<=? rm min))
-	  (fixnum-quotient l (r5rs->fixnum 2))
-	  (loop (fixnum+ (r5rs->fixnum 1) l)
-		(fixnum* r(r5rs->fixnum 2)) (fixnum* rm (r5rs->fixnum 2)))))))
+	  (fixnum-quotient l (core->fixnum 2))
+	  (loop (fixnum+ (core->fixnum 1) l)
+		(fixnum* r(core->fixnum 2)) (fixnum* rm (core->fixnum 2)))))))
 
-(define radix (fixnum-arithmetic-shift-left (r5rs->fixnum 1) log-radix))
+(define radix (fixnum-arithmetic-shift-left (core->fixnum 1) log-radix))
 
 (define zero-magnitude '())
 (define zero-magnitude? null?)
 
 (define (low-digit m)
   (if (zero-magnitude? m)
-      (r5rs->fixnum 0)
+      (core->fixnum 0)
       (car m)))
 
 (define (high-digits m)
@@ -229,7 +229,7 @@
 
 (define (magnitude->integer m)
   (if (zero-magnitude? m)
-      (r5rs->fixnum 0)
+      (core->fixnum 0)
       (fixnum+ (low-digit m)
                (fixnum* radix (magnitude->integer (high-digits m))))))
 
@@ -244,7 +244,7 @@
 ; Combine two numbers digitwise using op.
 
 (define (combine-magnitudes m n op)
-  (let recur ((m m) (n n) (carry (r5rs->fixnum 0)))
+  (let recur ((m m) (n n) (carry (core->fixnum 0)))
     (if (and (zero-magnitude? m) (zero-magnitude? n))
 	(fixnum->magnitude carry)
 	(let ((result (fixnum+ carry (op (low-digit m) (low-digit n)))))
@@ -255,7 +255,7 @@
 		  (adjoin-digit (fixnum+ r radix)
 				(recur (high-digits m)
 				       (high-digits n)
-				       (fixnum- q (r5rs->fixnum 1))))
+				       (fixnum- q (core->fixnum 1))))
 		  (adjoin-digit r
 				(recur (high-digits m)
 				       (high-digits n)
@@ -280,8 +280,8 @@
 	   (loop (cdr m) (cdr n)))))))
 
 (define (smaller-magnitude? m n)
-  (let ((m-len (r5rs->fixnum (length m)))
-	(n-len (r5rs->fixnum (length n))))
+  (let ((m-len (core->fixnum (length m)))
+	(n-len (core->fixnum (length n))))
     (cond ((fixnum<? m-len n-len)
 	   #t)
 	  ((fixnum<? n-len m-len)
@@ -344,12 +344,12 @@
        ;; Occasionally q^ is one larger than the actual first digit.
        ;; This loop will never iterate more than once.
        (let loop ((q^ (fixnum-min (guess-quotient-digit m-high n-high)
-                                  (fixnum- radix (r5rs->fixnum 1)))))
+                                  (fixnum- radix (core->fixnum 1)))))
 	 (let ((r (combine-magnitudes m n (lambda (d e)
 					    (fixnum- d (fixnum* e q^))))))
 	   (if (improper-magnitude? r)
 	       ;; (begin (write `(addback ,m ,n ,q^ ,r)) (newline) ...)
-	       (loop (fixnum- q^ (r5rs->fixnum 1)))
+	       (loop (fixnum- q^ (core->fixnum 1)))
 	       (cont q^ r)))))))
 
 ; Compute q such that [m1 m2 m3] = q*[n1 n2] + r with 0 <= r < [n1 n2]
@@ -383,7 +383,7 @@
 			   (write q1) (newline)))
 		(let ((q (fixnum+ q0 q1)))
 		  (if (fixnum-negative? r1)
-                      (fixnum- q (r5rs->fixnum 1))
+                      (fixnum- q (core->fixnum 1))
                       q))))))))))
 
 (define (improper-magnitude? m)
@@ -449,7 +449,7 @@
 	       b r
 	       (lambda (q r)
 		 (loop q
-		       (cons (string-ref d (bignum->r5rs r))
+		       (cons (string-ref d (bignum->core r))
 			     l))))))))) 
 
 (define (bignum-divide->bignums m n cont)

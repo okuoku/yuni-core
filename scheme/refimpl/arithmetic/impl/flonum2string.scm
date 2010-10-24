@@ -14,8 +14,8 @@
 	(string-copy "+inf.0")
 	(string-copy "-inf.0")))
    ((flzero? x)
-    (if (integer=? radix (r5rs->integer 10))
-	(string-copy (if (integer>=? (flsign x) (r5rs->integer 0)) "0.0" "-0.0"))
+    (if (integer=? radix (core->integer 10))
+	(string-copy (if (integer>=? (flsign x) (core->integer 0)) "0.0" "-0.0"))
 	(string-copy "#i0")))		; #### sign?
    (else
     (let* ((exp (flexponent x))
@@ -23,10 +23,10 @@
 	   (significand (flsignificand x))
 	   (rep (string-append 
 		 (if (flnegative? x) "-" "")
-		 (if (integer=? radix (r5rs->integer 10))
+		 (if (integer=? radix (core->integer 10))
 		     (burger10 (flabs x) significand exp)
 		     (burger (flabs x) significand exp radix)))))
-      (if (integer=? digit-count (r5rs->integer 53))
+      (if (integer=? digit-count (core->integer 53))
 	  (if precision
 	      (string-append rep "|"
 			     (integer->string
@@ -35,31 +35,31 @@
 	      rep)
 	  (string-append rep "|"
 			 (integer->string (integer-max digit-count
-						       (or precision (r5rs->integer 0)))
+						       (or precision (core->integer 0)))
 					  radix)))))))
 
 (define (mantissa-width significand)
   (let ((right-aligned
 	 (let loop ((significand significand))
 	   (call-with-values
-	       (lambda () (integer-quotient+remainder significand (r5rs->integer 2)))
+	       (lambda () (integer-quotient+remainder significand (core->integer 2)))
 	     (lambda (q r)
 	       (if (integer-zero? r)
 		   (loop q)
 		   significand))))))
     (let loop ((significand right-aligned)
-	       (width (r5rs->integer 0)))
+	       (width (core->integer 0)))
       (if (integer-zero? significand)
 	  width
-	  (loop (integer-quotient significand (r5rs->integer 2))
-		(integer+ (r5rs->integer 1) width))))))
+	  (loop (integer-quotient significand (core->integer 2))
+		(integer+ (core->integer 1) width))))))
 
 (define (burger x mantissa exp radix)
   (call-with-values
       (lambda ()
 	(flonum->digits x mantissa exp
 			fl-ieee-min-exponent/denormalized fl-ieee-mantissa-width
-			(r5rs->integer 2) radix))
+			(core->integer 2) radix))
     (lambda (k digits)
       (format digits k))))
 
@@ -96,34 +96,34 @@
 
 (define flonum->digits10
   (lambda (v f e)
-    (let ((bp-1 (integer-expt (r5rs->integer 2)
-			      (integer- fl-ieee-mantissa-width (r5rs->integer 1))))
+    (let ((bp-1 (integer-expt (core->integer 2)
+			      (integer- fl-ieee-mantissa-width (core->integer 1))))
 	  (round? (integer-even? f)))
-      (if (integer>=? e (r5rs->integer 0))
+      (if (integer>=? e (core->integer 0))
 	  (if (not (integer=? f bp-1))
-	      (let ((be (integer-expt (r5rs->integer 2) e)))
-		(scale10 (integer* f be 2) (r5rs->integer 2) be be (r5rs->integer 0) round? round? v))
-	      (let ((be (integer-expt (r5rs->integer 2) e)))
-		(scale10 (integer* f be (r5rs->integer 4)) 
-			 (r5rs->integer 4)
-			 (integer* be (r5rs->integer 2))
+	      (let ((be (integer-expt (core->integer 2) e)))
+		(scale10 (integer* f be 2) (core->integer 2) be be (core->integer 0) round? round? v))
+	      (let ((be (integer-expt (core->integer 2) e)))
+		(scale10 (integer* f be (core->integer 4)) 
+			 (core->integer 4)
+			 (integer* be (core->integer 2))
 			 be
-			 (r5rs->integer 0)
+			 (core->integer 0)
 			 round? round? v)))
 	  (if (or (integer=? e fl-ieee-min-exponent/denormalized) (not (integer=? f bp-1)))
-	      (scale10 (integer* f (r5rs->integer 2)) 
-		       (integer-expt (r5rs->integer 2) (integer- (r5rs->integer 1) e))
-		       (r5rs->integer 1) (r5rs->integer 1) (r5rs->integer 0)
+	      (scale10 (integer* f (core->integer 2)) 
+		       (integer-expt (core->integer 2) (integer- (core->integer 1) e))
+		       (core->integer 1) (core->integer 1) (core->integer 0)
 		       round? round? v)
-	      (scale10 (integer* f (r5rs->integer 4))
-		       (integer-expt (r5rs->integer 2) (integer- (r5rs->integer 2) e))
-		       (r5rs->integer 2) (r5rs->integer 1) (r5rs->integer 0)
+	      (scale10 (integer* f (core->integer 4))
+		       (integer-expt (core->integer 2) (integer- (core->integer 2) e))
+		       (core->integer 2) (core->integer 1) (core->integer 0)
 		       round? round? v))))))
 
 (define scale10
   (lambda (r s m+ m- k low-ok? high-ok? v)
-    (let ((est (flonum->integer (flceiling (fl- (fllog10 v) (r5rs->flonum 1e-10))))))
-      (if (integer>=? est (r5rs->integer 0))
+    (let ((est (flonum->integer (flceiling (fl- (fllog10 v) (core->flonum 1e-10))))))
+      (if (integer>=? est (core->integer 0))
           (fixup10 r (integer* s (expt10 est)) m+ m- est low-ok? high-ok?)
           (let ((scale (expt10 (integer-negate est))))
             (fixup10 (integer* r scale) s (integer* m+ scale) (integer* m- scale)
@@ -132,13 +132,13 @@
 (define fixup10
   (lambda (r s m+ m- k low-ok? high-ok?)
     (if ((if high-ok? integer>=? integer>?) (integer+ r m+) s) ; too low?
-        (values (integer+ k (r5rs->integer 1))
+        (values (integer+ k (core->integer 1))
 		(generate10 r s m+ m- low-ok? high-ok?))
         (values k
-		(generate10 (integer* r (r5rs->integer 10))
+		(generate10 (integer* r (core->integer 10))
 			    s
-			    (integer* m+ (r5rs->integer 10))
-			    (integer* m- (r5rs->integer 10))
+			    (integer* m+ (core->integer 10))
+			    (integer* m- (core->integer 10))
 			    low-ok? high-ok?)))))
 
 (define generate10
@@ -150,30 +150,30 @@
 	      (tc2 ((if high-ok? integer>=? integer>?) (integer+ r m+) s)))
 	  (if (not tc1)
 	      (if (not tc2)
-		  (cons d (generate10 (integer* r (r5rs->integer 10)) s 
-				      (integer* m+ (r5rs->integer 10))
-				      (integer* m- (r5rs->integer 10))
+		  (cons d (generate10 (integer* r (core->integer 10)) s 
+				      (integer* m+ (core->integer 10))
+				      (integer* m- (core->integer 10))
 				      low-ok? high-ok?))
-		  (list (integer+ d (r5rs->integer 1))))
+		  (list (integer+ d (core->integer 1))))
 	      (if (not tc2)
 		  (list d)
-		  (if (integer<? (integer* r (r5rs->integer 2)) s)
+		  (if (integer<? (integer* r (core->integer 2)) s)
 		      (list d)
-		      (list (integer+ d (r5rs->integer 1)))))))))))
+		      (list (integer+ d (core->integer 1)))))))))))
 
 (define expt10
   (let ((table (make-vector 326)))
-    (do ((k (r5rs->integer 0)
-	    (integer+ k (r5rs->integer 1)))
-	 (v (r5rs->integer 1)
-	    (integer* v (r5rs->integer 10))))
-        ((integer=? k (r5rs->integer 326)))
-      (vector-set! table (integer->r5rs k) v))
+    (do ((k (core->integer 0)
+	    (integer+ k (core->integer 1)))
+	 (v (core->integer 1)
+	    (integer* v (core->integer 10))))
+        ((integer=? k (core->integer 326)))
+      (vector-set! table (integer->core k) v))
     (lambda (k)
-      (vector-ref table (integer->r5rs k)))))
+      (vector-ref table (integer->core k)))))
 
 (define fllog10
-  (let ((f (fl/ (r5rs->flonum 1.0) (fllog (r5rs->flonum 10.0)))))
+  (let ((f (fl/ (core->flonum 1.0) (fllog (core->flonum 10.0)))))
     (lambda (x)
       (fl* (fllog x) f))))
 
@@ -203,25 +203,25 @@
 
 (define flonum->digits
   (lambda (v f e min-e p b ob)
-    (if (integer>=? e (r5rs->integer 0))
-	(if (not (integer=? f (integer-expt b (integer- p (r5rs->integer 1)))))
+    (if (integer>=? e (core->integer 0))
+	(if (not (integer=? f (integer-expt b (integer- p (core->integer 1)))))
 	    (let ((be (integer-expt b e)))
-	      (scale (integer* f (integer* be (r5rs->integer 2)))
-		     (r5rs->integer 2) be be (r5rs->integer 0) ob #f #f v))
+	      (scale (integer* f (integer* be (core->integer 2)))
+		     (core->integer 2) be be (core->integer 0) ob #f #f v))
 	    (let* ((be (integer-expt b e)) (be1 (integer* be b)))
-	      (scale (integer* f (integer* be1 (r5rs->integer 2)))
-		     (integer* b (r5rs->integer 2)) be1 be (r5rs->integer 0) ob #f #f v)))
-	(if (or (integer=? e min-e) (not (integer=? f (integer-expt b (integer- p (r5rs->integer 1))))))
-	    (scale (integer* f (r5rs->integer 2)) (integer* (integer-expt b (integer-negate e)) (r5rs->integer 2))
-		   (r5rs->integer 1) (r5rs->integer 1) (r5rs->integer 0) ob #f #f v)
-	    (scale (integer* f (integer* b (r5rs->integer 2))) 
-		   (integer* (integer-expt b (integer- (r5rs->integer 1) e)) (r5rs->integer 2))
-		   b (r5rs->integer 1) (r5rs->integer 0) ob #f #f v)))))
+	      (scale (integer* f (integer* be1 (core->integer 2)))
+		     (integer* b (core->integer 2)) be1 be (core->integer 0) ob #f #f v)))
+	(if (or (integer=? e min-e) (not (integer=? f (integer-expt b (integer- p (core->integer 1))))))
+	    (scale (integer* f (core->integer 2)) (integer* (integer-expt b (integer-negate e)) (core->integer 2))
+		   (core->integer 1) (core->integer 1) (core->integer 0) ob #f #f v)
+	    (scale (integer* f (integer* b (core->integer 2))) 
+		   (integer* (integer-expt b (integer- (core->integer 1) e)) (core->integer 2))
+		   b (core->integer 1) (core->integer 0) ob #f #f v)))))
 
 (define scale
   (lambda (r s m+ m- k ob low-ok? high-ok? v)
-    (let ((est (flonum->integer (flceiling (fl- (logB ob v) (r5rs->flonum 1e-10))))))
-      (if (integer>=? est (r5rs->integer 0))
+    (let ((est (flonum->integer (flceiling (fl- (logB ob v) (core->flonum 1e-10))))))
+      (if (integer>=? est (core->integer 0))
           (fixup r (integer* s (exptt ob est)) m+ m- est ob low-ok? high-ok?)
           (let ((scale (exptt ob (integer-negate est))))
             (fixup (integer* r scale) s (integer* m+ scale) (integer* m- scale)
@@ -230,7 +230,7 @@
 (define fixup
   (lambda (r s m+ m- k ob low-ok? high-ok?)
     (if ((if high-ok? integer>=? integer>?) (integer+ r m+) s) ; too low?
-        (values (integer+ k (r5rs->integer 1)) (generate r s m+ m- ob low-ok? high-ok?))
+        (values (integer+ k (core->integer 1)) (generate r s m+ m- ob low-ok? high-ok?))
         (values k
 		(generate (integer* r ob) s (integer* m+ ob) (integer* m- ob) ob low-ok? high-ok?)))))
 
@@ -245,38 +245,38 @@
 	      (if (not tc2)
 		  (cons d (generate (integer* r ob) s (integer* m+ ob) (integer* m- ob)
 				    ob low-ok? high-ok?))
-		  (list (integer+ d (r5rs->integer 1))))
+		  (list (integer+ d (core->integer 1))))
 	      (if (not tc2)
 		  (list d)
-		  (if (integer<? (integer* r (r5rs->integer 2)) s)
+		  (if (integer<? (integer* r (core->integer 2)) s)
 		      (list d)
-		      (list (integer+ d (r5rs->integer 1)))))))))))
+		      (list (integer+ d (core->integer 1)))))))))))
 
 (define exptt
   (let ((table (make-vector 326)))
-    (do ((k (r5rs->integer 0)
-	    (integer+ k (r5rs->integer 1)))
-	 (v (r5rs->integer 1)
-	    (integer* v (r5rs->integer 10))))
-        ((integer=? k (r5rs->integer 326)))
-      (vector-set! table (integer->r5rs k) v))
+    (do ((k (core->integer 0)
+	    (integer+ k (core->integer 1)))
+	 (v (core->integer 1)
+	    (integer* v (core->integer 10))))
+        ((integer=? k (core->integer 326)))
+      (vector-set! table (integer->core k) v))
     (lambda (B k)
-      (if (and (integer=? B (r5rs->integer 10))
-	       (integer<=? (r5rs->integer 0) k)
-	       (integer<=? k (r5rs->integer 325)))
-          (vector-ref table (integer->r5rs k))
+      (if (and (integer=? B (core->integer 10))
+	       (integer<=? (core->integer 0) k)
+	       (integer<=? k (core->integer 325)))
+          (vector-ref table (integer->core k))
           (integer-expt B k)))))
 
 (define logB
   (let ((table (make-vector 37)))
-    (do ((B (r5rs->integer 2) (integer+ B (r5rs->integer 1))))
-        ((integer=? B (r5rs->integer 37)))
-      (vector-set! table (integer->r5rs B)
-		   (fl/ (r5rs->flonum 1.0) (fllog (fixnum->flonum B))))) ; assumes a certain fixnum range
+    (do ((B (core->integer 2) (integer+ B (core->integer 1))))
+        ((integer=? B (core->integer 37)))
+      (vector-set! table (integer->core B)
+		   (fl/ (core->flonum 1.0) (fllog (fixnum->flonum B))))) ; assumes a certain fixnum range
     (lambda (B x)
-      (if (and (integer<=? (r5rs->integer 2) B)
-	       (integer<=? B (r5rs->integer 36)))
-          (fl* (fllog x) (vector-ref table (integer->r5rs B)))
+      (if (and (integer<=? (core->integer 2) B)
+	       (integer<=? B (core->integer 36)))
+          (fl* (fllog x) (vector-ref table (integer->core B)))
           (fl/ (fllog x) (fllog B))))))
 
 ; end from Bob Burger
@@ -292,12 +292,12 @@
 (define (format digits e)
   (let* ((s (list->string
 	     (map (lambda (digit)
-		    (vector-ref **digit-characters** (integer->r5rs digit)))
+		    (vector-ref **digit-characters** (integer->core digit)))
 		  digits)))
-         (n (integer- e (r5rs->integer 1))))
-    (cond ((integer<? n (r5rs->integer -5)) (exponential-format s n))
-          ((integer>? n (r5rs->integer 8)) (exponential-format s n))
-          (else (decimal-format s (integer- e (r5rs->integer (string-length s))))))))
+         (n (integer- e (core->integer 1))))
+    (cond ((integer<? n (core->integer -5)) (exponential-format s n))
+          ((integer>? n (core->integer 8)) (exponential-format s n))
+          (else (decimal-format s (integer- e (core->integer (string-length s))))))))
 
 (define **digit-characters**
   '#(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9
@@ -307,23 +307,23 @@
 (define (exponential-format s n)
   (string-append (substring s 0 1)
                  "."
-                 (if (integer>? (r5rs->integer (string-length s)) (r5rs->integer 1))
+                 (if (integer>? (core->integer (string-length s)) (core->integer 1))
                      (substring s 1 (string-length s))
                      "0")
                  "e"
-                 (integer->string n (r5rs->integer 10))))
+                 (integer->string n (core->integer 10))))
 
 (define (decimal-format s n)
-  (let ((k (r5rs->integer (string-length s))))
+  (let ((k (core->integer (string-length s))))
     (cond ((integer-negative? n)
            (if (integer-positive? (integer+ n k))
-               (string-append (substring s 0 (integer->r5rs (integer+ n k)))
+               (string-append (substring s 0 (integer->core (integer+ n k)))
                               "."
-                              (substring s (integer->r5rs (integer+ n k)) (integer->r5rs k)))
+                              (substring s (integer->core (integer+ n k)) (integer->core k)))
                (string-append "0."
-                              (make-string (integer->r5rs (integer- (r5rs->integer 0) (integer+ n k))) #\0)
+                              (make-string (integer->core (integer- (core->integer 0) (integer+ n k))) #\0)
                               s)))
-          (else (string-append s (make-string (integer->r5rs n) #\0) ".0")))))
+          (else (string-append s (make-string (integer->core n) #\0) ".0")))))
 
 (define (flonum-exponent->digit-count exp)
   (if (integer>=? exp fl-ieee-min-exponent)

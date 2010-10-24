@@ -26,12 +26,12 @@
 	  (recnum-real r)
 	  (recnum-imag r))))
 
-(define (r5rs->recnum n)
-  (make-recnum (r5rs->integer (core:real-part n))
-	       (r5rs->integer (core:imag-part n))))
+(define (core->recnum n)
+  (make-recnum (core->integer (core:real-part n))
+	       (core->integer (core:imag-part n))))
 
 (define (rectangulate x y)
-  (if (rational=? y (r5rs->integer 0))
+  (if (rational=? y (core->integer 0))
       x
       (make-recnum x y)))
 

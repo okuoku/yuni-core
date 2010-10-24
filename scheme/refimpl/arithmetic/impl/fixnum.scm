@@ -89,7 +89,7 @@
       (lambda (x)
         (if (fixnum? x) x (error "bad argument to fixnum-rep" x)))))
 
-(define fixnum->r5rs fixnum-rep)
+(define fixnum->core fixnum-rep)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -103,7 +103,7 @@
       (really-make-fixnum n)
       (error "argument to make-fixnum is out of range" n)))
 
-(define r5rs->fixnum make-fixnum)
+(define core->fixnum make-fixnum)
 
 ; for playing around
 (define fx make-fixnum)

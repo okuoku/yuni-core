@@ -18,9 +18,9 @@
 (define (make-flonum n)
   (really-make-flonum (core:exact->inexact n)))
 
-(define r5rs->flonum make-flonum)
+(define core->flonum make-flonum)
 
-(define flonum->r5rs flonum-inexact)
+(define flonum->core flonum-inexact)
 
 ; for playing around
 (define fl make-flonum)
@@ -92,11 +92,11 @@
     (r5rs-op (flonum-inexact a))))
 
 (define (flzero? x)
-  (fl=? x (r5rs->flonum 0.0)))
+  (fl=? x (core->flonum 0.0)))
 (define (flpositive? x)
-  (fl>? x (r5rs->flonum 0.0)))
+  (fl>? x (core->flonum 0.0)))
 (define (flnegative? x)
-  (fl<? x (r5rs->flonum 0.0)))
+  (fl<? x (core->flonum 0.0)))
 
 (define flmin (make-min/max fl<?))
 (define flmax (make-min/max fl>?))
@@ -186,7 +186,7 @@
 (define flround (make-fl->fl core:round))
 
 (define (fixnum->flonum fx)
-  (make-flonum (fixnum->r5rs fx)))
+  (make-flonum (fixnum->core fx)))
 
 (define (flonum->fixnum f)
   (cond
@@ -195,7 +195,7 @@
    ((fl>? f (fixnum->flonum (greatest-fixnum)))
     (greatest-fixnum))
    (else
-    (r5rs->fixnum (core:inexact->exact (core:round (flonum-inexact f)))))))
+    (core->fixnum (core:inexact->exact (core:round (flonum-inexact f)))))))
 
 ; FIXME: Are these still used?
 

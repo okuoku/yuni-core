@@ -116,8 +116,8 @@
 ))
 
 (define-structures ((fixnums fixnums-interface)
-		    (fixnums-r5rs (export r5rs->fixnum
-					  fixnum->r5rs)))
+		    (fixnums-r5rs (export core->fixnum
+					  fixnum->core)))
   (open customization
         scheme-sans-arithmetic
         r5rs-arithmetic
@@ -146,7 +146,7 @@
 	  flinfinite? flfinite? flnan?))
 
 (define-structures ((flonums flonums-interface)
-		    (flonums-r5rs (export r5rs->flonum flonum->r5rs)))
+		    (flonums-r5rs (export core->flonum flonum->core)))
   (open scheme-sans-arithmetic
         r5rs-arithmetic
 	srfi-9 ; define-record-type
@@ -178,7 +178,7 @@
           bignum-bit-count bignum-length bignum-first-bit-set))
 
 (define-structures ((bignums bignums-interface)
-		    (bignums-r5rs (export bignum->r5rs r5rs->bignum)))
+		    (bignums-r5rs (export bignum->core core->bignum)))
   (open scheme-sans-arithmetic
 	(modify scheme (prefix core:) (expose >= = - remainder quotient * +))
   	srfi-9 ; define-record-type
@@ -213,7 +213,7 @@
 	  integer-arithmetic-shift-left))
 
 (define-structures ((integers integers-interface)
-		    (integers-r5rs (export integer->r5rs r5rs->integer )))
+		    (integers-r5rs (export integer->core core->integer )))
   (open scheme-sans-arithmetic
 	(modify scheme (prefix core:) (expose >= <=))
 	fixnums fixnums-r5rs
@@ -248,7 +248,7 @@
 	  ratnum->string))
 
 (define-structures ((ratnums ratnums-interface)
-		    (ratnums-r5rs (export r5rs->ratnum)))
+		    (ratnums-r5rs (export core->ratnum)))
   (open scheme-sans-arithmetic
 	(modify scheme (prefix core:) (expose numerator denominator))
 	srfi-9				; define-record-types
@@ -290,7 +290,7 @@
 	  compnum->string))
 
 (define-structures ((compnums compnums-interface)
-		    (compnums-r5rs (export r5rs->compnum)))
+		    (compnums-r5rs (export core->compnum)))
   (open scheme-sans-arithmetic
 	(modify scheme (prefix core:) (expose real-part imag-part))
 	srfi-9 ; define-record-types
@@ -309,7 +309,7 @@
 	  recnum->string))
 
 (define-structures ((recnums recnums-interface)
-		    (recnums-r5rs (export r5rs->recnum)))
+		    (recnums-r5rs (export core->recnum)))
   (open scheme-sans-arithmetic
 	(modify scheme (prefix core:) (expose real-part imag-part))
 	srfi-9 ; define-record-types
@@ -373,7 +373,7 @@
 	)
   (files number2string))
 
-(define-structure r5rs-to-numbers (export r5rs->number)
+(define-structure r5rs-to-numbers (export core->number)
   (open scheme-sans-arithmetic
         r5rs-arithmetic
 	integers-r5rs

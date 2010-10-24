@@ -30,10 +30,10 @@
 
 ; #### (SEE WILL'S NOTES)
 (define n (fx 53))
-(define two^n-1 (integer-expt (r5rs->integer 2) (integer- n (r5rs->integer 1))))
-(define two^n (integer-expt (r5rs->integer 2) n))
+(define two^n-1 (integer-expt (core->integer 2) (integer- n (core->integer 1))))
+(define two^n (integer-expt (core->integer 2) n))
 (define flonum:minexponent
-  (integer-negate (integer- (integer-expt (r5rs->integer 2) (fx 10)) (r5rs->integer 1))))
+  (integer-negate (integer- (integer-expt (core->integer 2) (fx 10)) (core->integer 1))))
 
 (define hard-case
   ;; r = u/v * 2^k
@@ -43,17 +43,17 @@
 		(cond ((and (integer<=? two^n-1 x) (integer<? x two^n))
 		       (ratio->float u v k))
 		      ((integer<? x two^n-1)
-		       (loop (integer* (r5rs->integer 2) u) v (integer- k (r5rs->integer 1))))
+		       (loop (integer* (core->integer 2) u) v (integer- k (core->integer 1))))
 		      ((integer<=? two^n x)
-		       (loop u (integer* 2 v) (integer+ k (r5rs->integer 1)))))))))
+		       (loop u (integer* 2 v) (integer+ k (core->integer 1)))))))))
 
     (lambda (r)
       (let ((p (ratnum-numerator r))
 	    (q (ratnum-denominator r)))
 	(let ((k (integer- (ratnum-log2 r) n)))
-	  (if (integer>? k (r5rs->integer 0))
-	      (loop p (integer* q (integer-expt (r5rs->integer 2) k)) k)
-	      (loop (integer* p (integer-expt (r5rs->integer 2) (integer-negate k))) q k)))))))
+	  (if (integer>? k (core->integer 0))
+	      (loop p (integer* q (integer-expt (core->integer 2) k)) k)
+	      (loop (integer* p (integer-expt (core->integer 2) (integer-negate k))) q k)))))))
 
 
 ; Given exact positive integers u and v with
@@ -65,26 +65,26 @@
          (r (integer- u (integer* q v)))
          (v-r (integer- v r)))
     (cond ((rational<? r v-r) (make-float q k))
-          ((rational<? v-r r) (make-float (integer+ q (r5rs->integer 1)) k))
-          ((integer-zero? (integer-remainder q (r5rs->integer 2))) (make-float q k))
-          (else (make-float (integer+ q (r5rs->integer 1)) k)))))
+          ((rational<? v-r r) (make-float (integer+ q (core->integer 1)) k))
+          ((integer-zero? (integer-remainder q (core->integer 2))) (make-float q k))
+          (else (make-float (integer+ q (core->integer 1)) k)))))
 
 ; Primitive operations on flonums.
 
 (define (make-float m q)
   (let ((m (if (flonum? m) m (integer->flonum m))))
     (if (integer<? q flonum:minexponent)
-	(make-float (fl* (r5rs->flonum .5) m)
-		    (integer+ q (r5rs->integer 1)))
+	(make-float (fl* (core->flonum .5) m)
+		    (integer+ q (core->integer 1)))
 	(fl* m
-	     (flinteger-expt (fixnum->flonum (r5rs->integer 2)) q)))))
+	     (flinteger-expt (fixnum->flonum (core->integer 2)) q)))))
 
 (define (rational->flonum r)
   (cond
    ((exact-integer? r)
     (integer->flonum r))
-   ((rational<? r (r5rs->integer 0))
-    (fl- (r5rs->flonum 0.0) (rational->flonum (ratnum-abs r))))
+   ((rational<? r (core->integer 0))
+    (fl- (core->flonum 0.0) (rational->flonum (ratnum-abs r))))
    (else
     (let ((p (ratnum-numerator r))
 	  (q (ratnum-denominator r)))
@@ -109,9 +109,9 @@
 (define integer-length
   (let ()
     (define useful
-      (let loop ((p (integer-expt (r5rs->integer 2) (fx 8))) (n (fx 4)))
+      (let loop ((p (integer-expt (core->integer 2) (fx 8))) (n (fx 4)))
 	(cons-stream (cons p n)
-		     (loop (integer* p p) (integer* n (r5rs->integer 2))))))
+		     (loop (integer* p p) (integer* n (core->integer 2))))))
     
     (define upto-16
       (vector (fx 0) (fx 1) 
@@ -121,15 +121,15 @@
     
     (define (recur n)
       (if (integer<? n (fx 16))
-	  (vector-ref upto-16 (integer->r5rs n))
+	  (vector-ref upto-16 (integer->core n))
 	  (let loop ((s useful) (prev (fx 16)))
 	    (let ((z (head s)))
 	      (if (integer<? n (car z))
 		  (integer+ (cdr z) (recur (integer-quotient n prev)))
 		  (loop (tail s) (car z)))))))
     (define (integer-length n)
-      (if (integer<? n (r5rs->integer 0))
-	  (recur (integer- (r5rs->integer -1) n))
+      (if (integer<? n (core->integer 0))
+	  (recur (integer- (core->integer -1) n))
 	  (recur n)))
 
     integer-length))
@@ -143,23 +143,23 @@
 	(d (ratnum-denominator r)))
     (let* ((approx
 	    (integer- (integer-length n) (integer-length d)))
-	   (power-0 (integer-expt (r5rs->integer 2) (integer- approx (r5rs->integer 1))))
-	   (power-1 (integer* (r5rs->integer 2) power-0))
-	   (power-2 (integer* (r5rs->integer 2) power-1)))
+	   (power-0 (integer-expt (core->integer 2) (integer- approx (core->integer 1))))
+	   (power-1 (integer* (core->integer 2) power-0))
+	   (power-2 (integer* (core->integer 2) power-1)))
       (cond
-       ((rational<? r power-0) (integer- approx (r5rs->integer 1)))
+       ((rational<? r power-0) (integer- approx (core->integer 1)))
        ((rational<? r power-1) approx)
-       (else (integer+ approx (r5rs->integer 1)))))))
+       (else (integer+ approx (core->integer 1)))))))
 
 (define (flinteger-expt x y)
   (define (recur y)
     (cond ((integer-zero? y)
-	   (r5rs->flonum 1.0))
+	   (core->flonum 1.0))
 	  ((integer-odd? y)
-	   (fl* x (recur (integer- y (r5rs->integer 1)))))
+	   (fl* x (recur (integer- y (core->integer 1)))))
 	  (else 
-	   (let ((v (recur (integer-quotient y (r5rs->integer 2)))))
+	   (let ((v (recur (integer-quotient y (core->integer 2)))))
 	     (fl* v v)))))
-  (if (integer>=? y (r5rs->integer 0))
+  (if (integer>=? y (core->integer 0))
       (recur y)
-      (fl/ (r5rs->flonum 1.0) (recur (integer-negate y)))))
+      (fl/ (core->flonum 1.0) (recur (integer-negate y)))))

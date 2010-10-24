@@ -29,9 +29,9 @@
 (define (make-compnum-polar a b)
   (make-compnum-polar (fl* a (flcos b)) (fl* a (flsin b))))
 
-(define (r5rs->compnum n)
-  (make-compnum (r5rs->flonum (core:real-part n))
-		(r5rs->flonum (core:imag-part n))))
+(define (core->compnum n)
+  (make-compnum (core->flonum (core:real-part n))
+		(core->flonum (core:imag-part n))))
 
 (define (compnum+ a b)
   (make-compnum (fl+ (compnum-real a) (compnum-real b))
@@ -69,13 +69,13 @@
   (and (flzero? (compnum-real a))
        (flzero? (compnum-imag a))))
 
-(define plus-i (make-compnum (r5rs->flonum 0.0) (r5rs->flonum 1.0)))
-(define plus-2i (make-compnum (r5rs->flonum 0.0) (r5rs->flonum 2.0)))
-(define minus-i (make-compnum (r5rs->flonum 0.0) (r5rs->flonum -1.0)))
-(define compnum-zero (make-compnum (r5rs->flonum 0.0) (r5rs->flonum 0.0)))
-(define compnum-one (make-compnum (r5rs->flonum 1.0) (r5rs->flonum 0.0)))
-(define compnum-two (make-compnum (r5rs->flonum 2.0) (r5rs->flonum 0.0)))
-(define compnum-inf+ (make-compnum flinf+ (r5rs->flonum 0.0)))
+(define plus-i (make-compnum (core->flonum 0.0) (core->flonum 1.0)))
+(define plus-2i (make-compnum (core->flonum 0.0) (core->flonum 2.0)))
+(define minus-i (make-compnum (core->flonum 0.0) (core->flonum -1.0)))
+(define compnum-zero (make-compnum (core->flonum 0.0) (core->flonum 0.0)))
+(define compnum-one (make-compnum (core->flonum 1.0) (core->flonum 0.0)))
+(define compnum-two (make-compnum (core->flonum 2.0) (core->flonum 0.0)))
+(define compnum-inf+ (make-compnum flinf+ (core->flonum 0.0)))
 
 (define (compnum-angle z)
   (flatan (compnum-imag z)
@@ -88,7 +88,7 @@
 
 (define (compnum-exp c)
   (let ((i (compnum-imag c)))
-    (compnum* (make-compnum (flexp (compnum-real c)) (r5rs->flonum 0.0))
+    (compnum* (make-compnum (flexp (compnum-real c)) (core->flonum 0.0))
 	      (make-compnum (flcos i)
 			    (flsin i)))))
 
@@ -109,7 +109,7 @@
   (let ((i-c (compnum* c plus-i)))
     (compnum/ (compnum+ (compnum-exp i-c)
 			(compnum-exp (compnum- compnum-zero i-c)))
-	      (r5rs->flonum 2.0))))
+	      (core->flonum 2.0))))
 
 (define (compnum-tan c)
   (compnum/ (compnum-sin c) (compnum-cos c)))

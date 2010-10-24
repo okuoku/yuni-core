@@ -18,20 +18,20 @@
 	  (ratnum-numerator r)
 	  (ratnum-denominator r))))
 
-(define (r5rs->ratnum r)
-  (integer/ (r5rs->integer (core:numerator r))
-	    (r5rs->integer (core:denominator r))))
+(define (core->ratnum r)
+  (integer/ (core->integer (core:numerator r))
+	    (core->integer (core:denominator r))))
 
 (define (integer/ m n)
-  (cond ((integer<? n (r5rs->integer 0))
+  (cond ((integer<? n (core->integer 0))
 	 (integer/ (integer-negate m) (integer-negate n)))
-	((integer=? n (r5rs->integer 0))
+	((integer=? n (core->integer 0))
 	 (error "rational division by zero" m))
 	(else
 	 (let ((g (integer-gcd m n)))
 	   (let ((m (integer-quotient m g))
 		 (n (integer-quotient n g)))
-	     (if (integer=? n (r5rs->integer 1))
+	     (if (integer=? n (core->integer 1))
 		 m
 		 (make-unreduced-ratnum m n)))))))
 
@@ -122,9 +122,9 @@
 (define (ratnum-floor p)
   (let* ((n (ratnum-numerator p))
 	 (q (integer-quotient n (ratnum-denominator p))))
-    (if (integer<? (r5rs->integer 0) n)
+    (if (integer<? (core->integer 0) n)
 	q
-	(integer- q (r5rs->integer 1)))))
+	(integer- q (core->integer 1)))))
 
 (define (ratnum->string r radix)
   (string-append

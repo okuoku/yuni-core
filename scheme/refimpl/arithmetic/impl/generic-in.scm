@@ -94,13 +94,13 @@
 (define-binary inexact//2 contagion/in fl/ compnum/)
 
 (define (inexact+ . args)
-  (reduce (r5rs->flonum 0.0) inexact+/2 args))
+  (reduce (core->flonum 0.0) inexact+/2 args))
 (define (inexact- arg0 . args)
-  (reduce (r5rs->flonum 0.0) inexact-/2 (cons arg0 args)))
+  (reduce (core->flonum 0.0) inexact-/2 (cons arg0 args)))
 (define (inexact* . args)
-  (reduce (r5rs->flonum 1.0) inexact*/2 args))
+  (reduce (core->flonum 1.0) inexact*/2 args))
 (define (inexact/ arg0 . args)
-  (reduce (r5rs->flonum 1.0) inexact//2 (cons arg0 args)))
+  (reduce (core->flonum 1.0) inexact//2 (cons arg0 args)))
 
 (define-unary inexact-abs flabs (make-typo-op/1 inexact-abs 'real))
 
@@ -145,19 +145,19 @@
 		  (d (inexact* (inexact-denominator x)
 			       (inexact-numerator y))))
 	      (if (inexact-negative? n)
-		  (inexact- (inexact-quotient (inexact- (inexact- d n) (r5rs->flonum 1)) d))
+		  (inexact- (inexact-quotient (inexact- (inexact- d n) (core->flonum 1)) d))
 		  (inexact-quotient n d))))
 	   ((inexact-zero? y)
-	    (r5rs->flonum 0))
+	    (core->flonum 0))
 	   ((inexact-negative? y)
-	    (let ((n (inexact* (r5rs->flonum -2) 
+	    (let ((n (inexact* (core->flonum -2) 
 			       (inexact-numerator x)
 			       (inexact-denominator y)))
 		  (d (inexact* (inexact-denominator x)
 			  (inexact- (inexact-numerator y)))))
 	      (if (inexact<? n d)
 		  (inexact- (inexact-quotient (inexact- d n) (inexact* 2 d)))
-		  (inexact-quotient (inexact+ n d (r5rs->flonum -1)) (inexact* 2 d)))))))
+		  (inexact-quotient (inexact+ n d (core->flonum -1)) (inexact* 2 d)))))))
 	 (mod
 	  (inexact- x (inexact* div y))))
     (values div mod)))
@@ -176,8 +176,8 @@
 
 (define (inexact-gcd/2 x y)
   (if (and (inexact-integer? x) (inexact-integer? y))
-      (cond ((inexact<? x (r5rs->flonum 0.0)) (inexact-gcd/2 (inexact- x) y))
-	    ((inexact<? y (r5rs->flonum 0.0)) (inexact-gcd/2 x (inexact- y)))
+      (cond ((inexact<? x (core->flonum 0.0)) (inexact-gcd/2 (inexact- x) y))
+	    ((inexact<? y (core->flonum 0.0)) (inexact-gcd/2 x (inexact- y)))
 	    ((inexact<? x y) (euclid y x))
 	    (else (euclid x y)))
       (error "ingcd inpects integral arguments" x y)))
@@ -195,10 +195,10 @@
 		  (inexact-abs y)))))
 
 (define (inexact-gcd . args)
-  (reduce (r5rs->flonum 0.0) inexact-gcd/2 args))
+  (reduce (core->flonum 0.0) inexact-gcd/2 args))
 
 (define (inexact-lcm . args)
-  (reduce (r5rs->flonum 1.0) inexact-lcm/2 args))
+  (reduce (core->flonum 1.0) inexact-lcm/2 args))
 
 (define (flnumerator x)
   (integer->flonum (rational-numerator (flonum->rational x))))
@@ -227,11 +227,11 @@
       (inexact-floor x)))
 
 (define (inexact-round x)
-  (let* ((x+1/2 (inexact+ x (r5rs->flonum 0.5)))
+  (let* ((x+1/2 (inexact+ x (core->flonum 0.5)))
 	 (r (inexact-floor x+1/2)))
     (if (and (inexact=? r x+1/2)
 	     (inexact-odd? r))
-	(inexact- r (r5rs->flonum 1.0))
+	(inexact- r (core->flonum 1.0))
 	r)))
 
 (define-unary inexact-exp flexp compnum-exp)
@@ -249,7 +249,7 @@
 	 (fllog z))
 	((or (compnum? z) (inexact-negative? z))
 	 (inexact+ (inexact-log (inexact-magnitude z))
-		   (inexact* (r5rs->compnum +1.0i) (inexact-angle z))))
+		   (inexact* (core->compnum +1.0i) (inexact-angle z))))
 	(else
 	 (fllog z))))
 
@@ -266,9 +266,9 @@
   (cond ((and (flonum? z) (not (flnegative? z)))
 	 (flsqrt z))
 	((compnum? z)
-	 (inexact-exp (inexact/ (inexact-log z) (r5rs->flonum 2.0))))
+	 (inexact-exp (inexact/ (inexact-log z) (core->flonum 2.0))))
 	((inexact-negative? z)
-	 (inexact-make-rectangular (r5rs->flonum 0.0) (inexact-sqrt (inexact- z))))
+	 (inexact-make-rectangular (core->flonum 0.0) (inexact-sqrt (inexact- z))))
 	(else
 	 (flsqrt z))))
 
@@ -289,17 +289,17 @@
 
   (define (e x y)
     (cond ((inexact-zero? y)
-	   (r5rs->flonum 1.0))
+	   (core->flonum 1.0))
 	  ((inexact-odd? y)
-	   (inexact* x (e x (inexact- y (r5rs->flonum 1.0)))))
+	   (inexact* x (e x (inexact- y (core->flonum 1.0)))))
 	  (else 
-	   (let ((v (e x (inexact-quotient y (r5rs->flonum 2.0)))))
+	   (let ((v (e x (inexact-quotient y (core->flonum 2.0)))))
 	     (inexact* v v)))))
 
   (cond ((inexact-zero? x)
 	 (if (inexact-zero? y)
-	     (r5rs->flonum 1.0)
-	     (r5rs->flonum 0.0)))
+	     (core->flonum 1.0)
+	     (core->flonum 0.0)))
 	((inexact-integer? y)
 	 (if (inexact-negative? y)
 	     (inexact/ (inexact-expt x (inexact- y)))
@@ -334,7 +334,7 @@
 (define (inexact-imag-part z)
   (cond
    ((compnum? z) (compnum-real z))
-   ((flonum? z) (r5rs->flonum 0.0))
+   ((flonum? z) (core->flonum 0.0))
    (else
     (error "inexact-imag-part: invalid argument" z))))
 

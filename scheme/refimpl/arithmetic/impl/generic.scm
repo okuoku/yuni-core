@@ -210,9 +210,9 @@
   flmax (make-typo-op/2 max/2 'real))
 
 (define (min arg0 . args)
-  (reduce (r5rs->integer 0) min/2 (cons arg0 args)))
+  (reduce (core->integer 0) min/2 (cons arg0 args)))
 (define (max arg0 . args)
-  (reduce (r5rs->integer 0) max/2 (cons arg0 args)))
+  (reduce (core->integer 0) max/2 (cons arg0 args)))
 
 (define-binary plus/2 contagion/will
   bignum+ ratnum+ recnum+ fl+ compnum+)
@@ -226,20 +226,20 @@
 ;; might be done faster with a different contagion matrix
 (define (*/2 n1 n2)
   (if (or (and (fixnum? n1)
-	       (fixnum=? n1 (r5rs->integer 0)))
+	       (fixnum=? n1 (core->integer 0)))
 	  (and (fixnum? n2)
-	       (fixnum=? n2 (r5rs->integer 0))))
+	       (fixnum=? n2 (core->integer 0))))
       0
       (*/2-helper n1 n2)))
 
 (define (+ . args)
-  (reduce (r5rs->integer 0) plus/2 args))
+  (reduce (core->integer 0) plus/2 args))
 (define (- arg0 . args)
-  (reduce (r5rs->integer 0) minus/2 (cons arg0 args)))
+  (reduce (core->integer 0) minus/2 (cons arg0 args)))
 (define (* . args)
-  (reduce (r5rs->integer 1) */2 args))
+  (reduce (core->integer 1) */2 args))
 (define (/ arg0 . args)
-  (reduce (r5rs->integer 1) //2 (cons arg0 args)))
+  (reduce (core->integer 1) //2 (cons arg0 args)))
 
 ;; ABS is evil ...
 (define *minus-least-fixnum* (bignum-negate (fixnum->bignum (least-fixnum))))
@@ -311,19 +311,19 @@
 		  (d (* (denominator x)
 			(numerator y))))
 	      (if (negative? n)
-		  (- (quotient (- (- d n) (r5rs->integer 1)) d))
+		  (- (quotient (- (- d n) (core->integer 1)) d))
 		  (quotient n d))))
 	   ((zero? y)
-	    (r5rs->integer 0))
+	    (core->integer 0))
 	   ((negative? y)
-	    (let ((n (* (r5rs->integer -2)
+	    (let ((n (* (core->integer -2)
 			(numerator x)
 			(denominator y)))
 		  (d (* (denominator x)
 			(- (numerator y)))))
 	      (if (< n d)
-		  (- (quotient (- d n) (* (r5rs->integer 2) d)))
-		  (quotient (+ n d (r5rs->integer -1)) (* (r5rs->integer 2) d)))))))
+		  (- (quotient (- d n) (* (core->integer 2) d)))
+		  (quotient (+ n d (core->integer -1)) (* (core->integer 2) d)))))))
 	 (mod
 	  (- x (* div y))))
     (values div mod)))
@@ -342,8 +342,8 @@
 
 (define (gcd/2 x y)
   (if (and (integer? x) (integer? y))
-      (cond ((< x (r5rs->integer 0)) (gcd/2 (- x) y))
-	    ((< y (r5rs->integer 0)) (gcd/2 x (- y)))
+      (cond ((< x (core->integer 0)) (gcd/2 (- x) y))
+	    ((< y (core->integer 0)) (gcd/2 x (- y)))
 	    ((< x y) (euclid y x))
 	    (else (euclid x y)))
       (error "gcd expects integral arguments" x y)))
@@ -361,10 +361,10 @@
 	   (abs y)))))
 
 (define (gcd . args)
-  (reduce (r5rs->integer 0) gcd/2 args))
+  (reduce (core->integer 0) gcd/2 args))
 
 (define (lcm . args)
-  (reduce (r5rs->integer 1) lcm/2 args))
+  (reduce (core->integer 1) lcm/2 args))
 
 ; end from Scheme 48
 
@@ -403,11 +403,11 @@
       (floor x)))
 
 (define (round x)
-  (let* ((x+1/2 (+ x (r5rs->ratnum 1/2)))
+  (let* ((x+1/2 (+ x (core->ratnum 1/2)))
 	 (r (floor x+1/2)))
     (if (and (= r x+1/2)
 	     (odd? r))
-	(- r (r5rs->integer 1))
+	(- r (core->integer 1))
 	r)))
 
 ; end from Scheme 48
@@ -442,7 +442,7 @@
   (cond ((and (flonum? z) (flpositive? z))
 	 (fllog z))
 	((or (not (real? z)) (negative? z))
-	 (+ (log (magnitude z)) (* (r5rs->compnum +1.0i) (angle z))))
+	 (+ (log (magnitude z)) (* (core->compnum +1.0i) (angle z))))
 	((and (exact? z) (zero? z))
 	 (error "log: Domain error: " z)
 	 #t)
@@ -462,9 +462,9 @@
   (cond ((and (flonum? z) (not (flnegative? z)))
 	 (flsqrt z))
 	((not (real? z))
-	 (exp (/ (log z) (r5rs->flonum 2.0))))
+	 (exp (/ (log z) (core->flonum 2.0))))
 	((negative? z)
-	 (make-rectangular (r5rs->integer 0) (sqrt (- z))))
+	 (make-rectangular (core->integer 0) (sqrt (- z))))
 	(else
 	 (flsqrt (x->inexact z)))))
 
@@ -485,21 +485,21 @@
 
   (define (e x y)
     (cond ((zero? y)
-	   (r5rs->integer 1))
+	   (core->integer 1))
 	  ((odd? y)
-	   (* x (e x (- y (r5rs->integer 1)))))
+	   (* x (e x (- y (core->integer 1)))))
 	  (else 
-	   (let ((v (e x (quotient y (r5rs->integer 2)))))
+	   (let ((v (e x (quotient y (core->integer 2)))))
 	     (* v v)))))
 
   (cond ((zero? x)
 	 (if (zero? y)
 	     (if (and (exact? x) (exact? y))
-		 (r5rs->integer 1)
-		 (r5rs->flonum 1.0))
+		 (core->integer 1)
+		 (core->flonum 1.0))
 	     (if (exact? x)
-		 (r5rs->integer 0)
-		 (r5rs->flonum 0.0))))
+		 (core->integer 0)
+		 (core->flonum 0.0))))
 	((integer? y)
 	 (if (negative? y)
 	     (/ (expt x (- y)))
@@ -566,7 +566,7 @@
   (cond
    ((recnum? z) (recnum-imag z))
    ((compnum? z) (compnum-imag z))
-   (else (r5rs->integer 0))))
+   (else (core->integer 0))))
 
 (define (angle c)
   (atan (imag-part c) (real-part c)))
@@ -621,12 +621,12 @@
              fx)
             ((= fx fy)
              (+ fx
-		(/ (r5rs->integer 1) 
+		(/ (core->integer 1) 
 		   (simplest-rational-internal
-		    (/ (r5rs->integer 1) (- y fy))
-		    (/ (r5rs->integer 1) (- x fx))))))
+		    (/ (core->integer 1) (- y fy))
+		    (/ (core->integer 1) (- x fx))))))
             (else
-             (+ (r5rs->integer 1) fx)))))
+             (+ (core->integer 1) fx)))))
   ;; Do some juggling to satisfy preconditions of simplest-rational-internal.
   (cond ((not (< x y))
          (cond ((real? x) x)
@@ -635,10 +635,10 @@
         ((positive? x)
          (simplest-rational-internal x y))
         ((negative? y)
-         (- (r5rs->integer 0)
-	    (simplest-rational-internal (- (r5rs->integer 0) y)
-                                        (- (r5rs->integer 0) x))))
+         (- (core->integer 0)
+	    (simplest-rational-internal (- (core->integer 0) y)
+                                        (- (core->integer 0) x))))
         (else
          (if (and (exact? x) (exact? y))
-             (r5rs->integer 0)
-             (x->inexact (r5rs->integer 0))))))
+             (core->integer 0)
+             (x->inexact (core->integer 0))))))

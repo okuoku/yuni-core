@@ -4,38 +4,38 @@
 ; Numeric coercion
 
 (define (fixnum->ratnum f)
-  (make-unreduced-ratnum f (r5rs->integer 1)))
+  (make-unreduced-ratnum f (core->integer 1)))
 
 (define (fixnum->recnum f)
-  (make-recnum f (r5rs->integer 0)))
+  (make-recnum f (core->integer 0)))
 
 (define (fixnum->compnum f)
-  (make-compnum (fixnum->flonum f) (r5rs->flonum 0.0)))
+  (make-compnum (fixnum->flonum f) (core->flonum 0.0)))
 
 (define (bignum->ratnum f)
-  (make-unreduced-ratnum f (r5rs->integer 1)))
+  (make-unreduced-ratnum f (core->integer 1)))
 
 (define (bignum->recnum f)
   (make-recnum f 0))
 
 (define (bignum->compnum f)
-  (make-compnum (integer->flonum f) (r5rs->flonum 0.0)))
+  (make-compnum (integer->flonum f) (core->flonum 0.0)))
 
 (define (ratnum->recnum f)
-  (make-recnum f (r5rs->integer 0)))
+  (make-recnum f (core->integer 0)))
 
 (define (ratnum->flonum f)
   (rational->flonum f))
 
 (define (ratnum->compnum f)
-  (make-compnum (ratnum->flonum f) (r5rs->flonum 0.0)))
+  (make-compnum (ratnum->flonum f) (core->flonum 0.0)))
 
 (define (recnum->compnum f)
   (make-compnum (rational->flonum (recnum-real f)) 
 		(rational->flonum (recnum-imag f))))
 
 (define (flonum->compnum f)
-  (make-compnum f (r5rs->flonum 0.0)))
+  (make-compnum f (core->flonum 0.0)))
 
 (define (flonum->bignum f)
   (integer->bignum (flonum->integer f)))

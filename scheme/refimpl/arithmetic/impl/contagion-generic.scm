@@ -45,7 +45,7 @@
   #t)
 
 (define (zero x)
-  (r5rs->flonum 0.0))
+  (core->flonum 0.0))
 
 ; Algorithm* for ordering predicates (<, <=, >, >=): if both are
 ; representable as integers, represent as bignums and compare. 

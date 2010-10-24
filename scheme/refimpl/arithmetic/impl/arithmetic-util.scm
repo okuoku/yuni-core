@@ -20,8 +20,8 @@
 (define (id x) x)
 
 (define (one x)
-  (r5rs->integer 1))
+  (core->integer 1))
 
 (define (one/flo x)
-  (r5rs->flonum 1.0))
+  (core->flonum 1.0))
 

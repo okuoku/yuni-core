@@ -3,22 +3,22 @@
 
 ; Converting R5RS numbers to those of the reference implementation
 
-(define (r5rs->number n)
+(define (core->number n)
   (cond
    ((core:exact? n)
     (cond
      ((core:integer? n)
-      (r5rs->integer n))
+      (core->integer n))
      ((core:rational? n)
-      (r5rs->ratnum n))
+      (core->ratnum n))
      ((core:complex? n)
-      (r5rs->recnum n))
+      (core->recnum n))
      (else #f)))
    
    ((core:real? n)
-    (r5rs->flonum n))
+    (core->flonum n))
    (else
-    (r5rs->compnum n))))
+    (core->compnum n))))
 
       
    

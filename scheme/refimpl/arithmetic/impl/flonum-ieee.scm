@@ -3,11 +3,11 @@
 
 ; IEEE dependencies
 
-(define fl-ieee-min-exponent/denormalized (r5rs->integer -1074)) ; this includes denormalized numbers
-(define fl-ieee-min-exponent (r5rs->integer -1023))
-(define fl-ieee-max-exponent (r5rs->integer 1023))
+(define fl-ieee-min-exponent/denormalized (core->integer -1074)) ; this includes denormalized numbers
+(define fl-ieee-min-exponent (core->integer -1023))
+(define fl-ieee-max-exponent (core->integer 1023))
 (define r5rs-ieee-mantissa-width 53)
-(define fl-ieee-mantissa-width (r5rs->integer r5rs-ieee-mantissa-width))
+(define fl-ieee-mantissa-width (core->integer r5rs-ieee-mantissa-width))
 
 (define (r5rs-sign x)			      
   (cond			
@@ -19,7 +19,7 @@
    (else 0)))
 
 (define (flsign x)
-  (r5rs->integer (r5rs-sign (flonum->r5rs x))))
+  (core->integer (r5rs-sign (flonum->core x))))
 
 ; This is a kludge to work around a bug in the Scheme 48
 ; implementation of ->exact on denormalized numbers.
@@ -42,7 +42,7 @@
 	      ((core:<= 1.0 x) (loop (core:* .5 x)))))))
 
 (define (flsignificand x)
-  (r5rs->integer (r5rs-significand (flonum->r5rs x))))
+  (core->integer (r5rs-significand (flonum->core x))))
 
 (define (r5rs-exponent x)
   (if (core:= 0.0 x)
@@ -56,5 +56,5 @@
                (loop (core:* .5 x) (core:+ k 1)))))))
 
 (define (flexponent x)
-  (r5rs->integer (r5rs-exponent (flonum->r5rs x))))
+  (core->integer (r5rs-exponent (flonum->core x))))
 

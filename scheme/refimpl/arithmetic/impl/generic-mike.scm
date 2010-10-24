@@ -147,13 +147,13 @@
   integer/ integer/ ratnum/ recnum/)
 
 (define (+ . args)
-  (reduce (r5rs->integer 0) plus/2 args))
+  (reduce (core->integer 0) plus/2 args))
 (define (- arg0 . args)
-  (reduce (r5rs->integer 0) minus/2 (cons arg0 args)))
+  (reduce (core->integer 0) minus/2 (cons arg0 args)))
 (define (* . args)
-  (reduce (r5rs->integer 1) */2 args))
+  (reduce (core->integer 1) */2 args))
 (define (/ arg0 . args)
-  (reduce (r5rs->integer 1) //2 (cons arg0 args)))
+  (reduce (core->integer 1) //2 (cons arg0 args)))
 
 ;; ABS is evil ...
 (define *minus-least-fixnum* (bignum-negate (fixnum->bignum (least-fixnum))))
@@ -246,8 +246,8 @@
 
 (define (gcd/2 x y)
   (if (and (integer? x) (integer? y))
-      (cond ((< x (r5rs->integer 0)) (gcd/2 (- x) y))
-	    ((< y (r5rs->integer 0)) (gcd/2 x (- y)))
+      (cond ((< x (core->integer 0)) (gcd/2 (- x) y))
+	    ((< y (core->integer 0)) (gcd/2 x (- y)))
 	    ((< x y) (euclid y x))
 	    (else (euclid x y)))
       (error "gcd expects integral arguments" x y)))
@@ -265,10 +265,10 @@
 	   (abs y)))))
 
 (define (gcd . args)
-  (reduce (r5rs->integer 0) gcd/2 args))
+  (reduce (core->integer 0) gcd/2 args))
 
 (define (lcm . args)
-  (reduce (r5rs->integer 1) lcm/2 args))
+  (reduce (core->integer 1) lcm/2 args))
 
 (define-unary numerator
   id id ratnum-numerator
@@ -301,28 +301,28 @@
       (floor x)))
 
 (define (round x)
-  (let* ((x+1/2 (+ x (r5rs->ratnum 1/2)))
+  (let* ((x+1/2 (+ x (core->ratnum 1/2)))
 	 (r (floor x+1/2)))
     (if (and (= r x+1/2)
 	     (odd? r))
-	(- r (r5rs->integer 1))
+	(- r (core->integer 1))
 	r)))
 
 (define (expt x y)
 
   (define (e x y)
     (cond ((zero? y)
-	   (r5rs->integer 1))
+	   (core->integer 1))
 	  ((odd? y)
-	   (* x (e x (- y (r5rs->integer 1)))))
+	   (* x (e x (- y (core->integer 1)))))
 	  (else 
-	   (let ((v (e x (quotient y (r5rs->integer 2)))))
+	   (let ((v (e x (quotient y (core->integer 2)))))
 	     (* v v)))))
 
   (cond ((zero? x)
 	 (if (zero? y)
-	     (r5rs->integer 1)
-	     (r5rs->integer 0)))
+	     (core->integer 1)
+	     (core->integer 0)))
 	((integer? y)
 	 (if (negative? y)
 	     (/ (expt x (- y)))
@@ -361,9 +361,9 @@
    ((or (fixnum? x)
 	(bignum? x)
 	(ratnum? x))
-    (r5rs->integer 0))
+    (core->integer 0))
    ((recnum? x) (recnum-imag x))
-   ((flonum? x) (r5rs->integer 0))
+   ((flonum? x) (core->integer 0))
    ((compnum? x) (compnum-imag x))
    (else
     (error "imag-part: invalid argument" x))))
@@ -388,11 +388,11 @@
 ;  (make-typo-op/2 bitwise-and/2 'integer))
 
 ;(define (bitwise-ior . args)
-;  (reduce (r5rs->integer 0) bitwise-ior/2 args))
+;  (reduce (core->integer 0) bitwise-ior/2 args))
 ;(define (bitwise-and . args)
-;  (reduce (r5rs->integer 1) bitwise-and/2 args))
+;  (reduce (core->integer 1) bitwise-and/2 args))
 ;(define (bitwise-xor . args)
-;  (reduce (r5rs->integer 1) bitwise-xor/2 args))
+;  (reduce (core->integer 1) bitwise-xor/2 args))
 
 (define (arithmetic-shift-left a b)
 
@@ -471,20 +471,20 @@
              fx)
             ((= fx fy)
              (+ fx
-		(/ (r5rs->integer 1) 
+		(/ (core->integer 1) 
 		   (simplest-rational-internal
-		    (/ (r5rs->integer 1) (- y fy))
-		    (/ (r5rs->integer 1) (- x fx))))))
+		    (/ (core->integer 1) (- y fy))
+		    (/ (core->integer 1) (- x fx))))))
             (else
-             (+ (r5rs->integer 1) fx)))))
+             (+ (core->integer 1) fx)))))
   ;; Do some juggling to satisfy preconditions of simplest-rational-internal.
   (cond ((not (< x y))
          (if (rational? x) x (error "(rationalize <irrational> 0)" x)))
         ((positive? x)
          (simplest-rational-internal x y))
         ((negative? y)
-         (- (r5rs->integer 0)
-	    (simplest-rational-internal (- (r5rs->integer 0) y) (- (r5rs->integer 0) x))))
+         (- (core->integer 0)
+	    (simplest-rational-internal (- (core->integer 0) y) (- (core->integer 0) x))))
         (else
-	 (r5rs->integer 0))))
+	 (core->integer 0))))
 

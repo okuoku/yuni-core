@@ -121,21 +121,21 @@
   integer/ integer/ ratnum/ recnum/)
 
 (define (exact+ . args)
-  (reduce (r5rs->integer 0) exact+/2 args))
+  (reduce (core->integer 0) exact+/2 args))
 
 (define (exact- arg0 . args)
   (if (null? args)
-      (exact-/2 (r5rs->integer 0) arg0)
+      (exact-/2 (core->integer 0) arg0)
       ;FIXME: the definition of reduce in nary.scm is bonkers
       (do ((result arg0 (exact-/2 result (car args)))
            (args args (cdr args)))
           ((null? args) result))))
 
 (define (exact* . args)
-  (reduce (r5rs->integer 1) exact*/2 args))
+  (reduce (core->integer 1) exact*/2 args))
 (define (exact/ arg0 . args)
   (if (null? args)
-      (exact//2 (r5rs->integer 1) arg0)
+      (exact//2 (core->integer 1) arg0)
       ;FIXME: the definition of reduce in nary.scm is bonkers
       (do ((result arg0 (exact//2 result (car args)))
            (args args (cdr args)))
@@ -159,7 +159,7 @@
 (define-binary exact-quotient contagion/ex
   (lambda (x y)
     (if (and (fixnum=? x (least-fixnum))
-             (fixnum=? y (r5rs->integer -1)))
+             (fixnum=? y (core->integer -1)))
         *minus-least-fixnum*
         (fixnum-quotient x y)))
   bignum-quotient
@@ -215,9 +215,9 @@
            ; x/y = (xn*yd)/(xd*yn) = n/d
            (if (exact-negative? m)
                (if (exact-positive? y)
-                   (values (exact- q (r5rs->integer 1))
+                   (values (exact- q (core->integer 1))
                            (exact+ m y))
-                   (values (exact+ q (r5rs->integer 1))
+                   (values (exact+ q (core->integer 1))
                            (exact- m y)))                   
                (values q m))))))
 
@@ -237,16 +237,16 @@
   (call-with-values
    (lambda () (exact-div+mod x y))
    (lambda (d m)
-     (let ((y/2 (exact/ y (r5rs->integer 2))))
+     (let ((y/2 (exact/ y (core->integer 2))))
        (cond ((exact-positive? y/2)
               (if (exact>=? m y/2)
-                  (values (exact+ d (r5rs->integer 1))
+                  (values (exact+ d (core->integer 1))
                           (exact- m y))
                   (values d m)))
              (else
               (let ((y/2abs (exact- y/2)))
                 (if (exact>=? m y/2abs)
-                    (values (exact- d (r5rs->integer 1))
+                    (values (exact- d (core->integer 1))
                             (exact+ m y))
                     (values d m)))))))))
 
@@ -262,8 +262,8 @@
 
 (define (exact-gcd/2 x y)
   (if (and (exact-integer? x) (exact-integer? y))
-      (cond ((exact<? x (r5rs->integer 0)) (exact-gcd/2 (exact- x) y))
-	    ((exact<? y (r5rs->integer 0)) (exact-gcd/2 x (exact- y)))
+      (cond ((exact<? x (core->integer 0)) (exact-gcd/2 (exact- x) y))
+	    ((exact<? y (core->integer 0)) (exact-gcd/2 x (exact- y)))
 	    ((exact<? x y) (euclid y x))
 	    (else (euclid x y)))
       (error "exgcd expects integral arguments" x y)))
@@ -281,10 +281,10 @@
 		(exact-abs y)))))
 
 (define (exact-gcd . args)
-  (reduce (r5rs->integer 0) exact-gcd/2 args))
+  (reduce (core->integer 0) exact-gcd/2 args))
 
 (define (exact-lcm . args)
-  (reduce (r5rs->integer 1) exact-lcm/2 args))
+  (reduce (core->integer 1) exact-lcm/2 args))
 
 (define-unary exact-numerator
   id id ratnum-numerator
@@ -308,28 +308,28 @@
       (exact-floor x)))
 
 (define (exact-round x)
-  (let* ((x+1/2 (exact+ x (r5rs->ratnum 1/2)))
+  (let* ((x+1/2 (exact+ x (core->ratnum 1/2)))
 	 (r (exact-floor x+1/2)))
     (if (and (exact=? r x+1/2)
 	     (exact-odd? r))
-	(exact- r (r5rs->integer 1))
+	(exact- r (core->integer 1))
 	r)))
 
 (define (exact-expt x y)
 
   (define (e x y)
     (cond ((exact-zero? y)
-	   (r5rs->integer 1))
+	   (core->integer 1))
 	  ((exact-odd? y)
-	   (exact* x (e x (exact- y (r5rs->integer 1)))))
+	   (exact* x (e x (exact- y (core->integer 1)))))
 	  (else 
-	   (let ((v (e x (exact-quotient y (r5rs->integer 2)))))
+	   (let ((v (e x (exact-quotient y (core->integer 2)))))
 	     (exact* v v)))))
 
   (cond ((exact-zero? x)
 	 (if (exact-zero? y)
-	     (r5rs->integer 1)
-	     (r5rs->integer 0)))
+	     (core->integer 1)
+	     (core->integer 0)))
 	((exact-integer? y)
 	 (if (exact-negative? y)
 	     (exact/ (exact-expt x (exact- y)))
@@ -345,9 +345,9 @@
 
 (define-unary exact-real-part id id id recnum-real) 
 (define-unary exact-imag-part
-  (lambda (x) (r5rs->integer 0))  ; don't try to call this zero
-  (lambda (x) (r5rs->integer 0))  ; because some other file has
-  (lambda (x) (r5rs->integer 0))  ; a global variable named zero
+  (lambda (x) (core->integer 0))  ; don't try to call this zero
+  (lambda (x) (core->integer 0))  ; because some other file has
+  (lambda (x) (core->integer 0))  ; a global variable named zero
   recnum-imag)
 
 ; from Brad Lucier:
@@ -374,40 +374,40 @@
            ;; whenever x=y^2 is in this range.  Here we assume that we
 	   ;; have at least as much precision as IEEE double precision and 
            ;; we round to nearest.
-	   (exact<=? x (r5rs->integer 4503599627370496))) ; 2^52
+	   (exact<=? x (core->integer 4503599627370496))) ; 2^52
       (let* ((s (flonum->fixnum (flsqrt (fixnum->flonum x)))) 
 
              (r (fixnum- x (fixnum* s s))))
         (values s r))
       (let ((length/4
              (fixnum-arithmetic-shift-right
-              (fixnum+ (exact-integer-length x) (r5rs->integer 1))
-              (r5rs->integer 2))))
+              (fixnum+ (exact-integer-length x) (core->integer 1))
+              (core->integer 2))))
 	(call-with-values
 	    (lambda ()
 	      (exact-sqrt
 	       (exact-arithmetic-shift-left
 		x
-		(fixnum- (fixnum-arithmetic-shift-left length/4 (r5rs->integer 1))))))
+		(fixnum- (fixnum-arithmetic-shift-left length/4 (core->integer 1))))))
 	  (lambda (s-prime r-prime)
 	    (call-with-values
 		(lambda ()
 		  (exact-div+mod
 		   (exact+ (exact-arithmetic-shift-left r-prime length/4)
 			   (extract-bit-field length/4 length/4 x))
-		   (exact-arithmetic-shift-left s-prime (r5rs->integer 1))))
+		   (exact-arithmetic-shift-left s-prime (core->integer 1))))
 	      (lambda (q u)
 		(let ((s
 		       (exact+ (exact-arithmetic-shift-left s-prime length/4) q))
 		      (r
 		       (exact- (exact+ (exact-arithmetic-shift-left u length/4)
-				       (extract-bit-field length/4 (r5rs->integer 0) x))
+				       (extract-bit-field length/4 (core->integer 0) x))
 			       (exact* q q))))
 		  (if (exact-negative? r)
-		      (values  (exact- s (r5rs->integer 1))
+		      (values  (exact- s (core->integer 1))
 			       (exact+ r
-				       (exact- (exact-arithmetic-shift-left s (r5rs->integer 1))
-					       (r5rs->integer 1))))
+				       (exact- (exact-arithmetic-shift-left s (core->integer 1))
+					       (core->integer 1))))
 		      (values s r))))))))))
 
 ;; helper for EXACT-INTEGER-SQRT
@@ -415,8 +415,8 @@
 
 (define (extract-bit-field n1 n2 n3)
   (exact-and (exact-arithmetic-shift-left n3 (exact- n2))
-	     (exact- (exact-arithmetic-shift-left (r5rs->integer 1) n1) 
-                     (r5rs->integer 1))))
+	     (exact- (exact-arithmetic-shift-left (core->integer 1) n1) 
+                     (core->integer 1))))
 
 
 ; Integer-length, a la Common Lisp, written in portable Scheme.
@@ -433,28 +433,28 @@
 (define exact-integer-length
   (let ()
     (define useful
-      (let loop ((p (exact-expt (r5rs->integer 2) (r5rs->integer 8))) (n (r5rs->integer 4)))
+      (let loop ((p (exact-expt (core->integer 2) (core->integer 8))) (n (core->integer 4)))
 	(cons-stream (cons p n)
-		     (loop (exact* p p) (exact* n (r5rs->integer 2))))))
+		     (loop (exact* p p) (exact* n (core->integer 2))))))
     
     (define upto-16
-      (vector (r5rs->integer 0) (r5rs->integer 1) 
-	      (r5rs->integer 2) (r5rs->integer 2)
-	      (r5rs->integer 3) (r5rs->integer 3) (r5rs->integer 3) (r5rs->integer 3)
-	      (r5rs->integer 4) (r5rs->integer 4) (r5rs->integer 4) (r5rs->integer 4)
-	      (r5rs->integer 4) (r5rs->integer 4) (r5rs->integer 4) (r5rs->integer 4)))
+      (vector (core->integer 0) (core->integer 1) 
+	      (core->integer 2) (core->integer 2)
+	      (core->integer 3) (core->integer 3) (core->integer 3) (core->integer 3)
+	      (core->integer 4) (core->integer 4) (core->integer 4) (core->integer 4)
+	      (core->integer 4) (core->integer 4) (core->integer 4) (core->integer 4)))
     
     (define (recur n)
-      (if (exact<? n (r5rs->integer 16))
-	  (vector-ref upto-16 (integer->r5rs n))
-	  (let loop ((s useful) (prev (r5rs->integer 16)))
+      (if (exact<? n (core->integer 16))
+	  (vector-ref upto-16 (integer->core n))
+	  (let loop ((s useful) (prev (core->integer 16)))
 	    (let ((z (head s)))
 	      (if (exact<? n (car z))
 		  (exact+ (cdr z) (recur (exact-quotient n prev)))
 		  (loop (tail s) (car z)))))))
     (define (integer-length n)
-      (if (exact<? n (r5rs->integer 0))
-	  (recur (exact- (r5rs->integer -1) n))
+      (if (exact<? n (core->integer 0))
+	  (recur (exact- (core->integer -1) n))
 	  (recur n)))
 
     integer-length))
@@ -490,17 +490,17 @@
       (fail)))))
 
 (define (exact-ior . args)
-  (reduce (r5rs->integer 0)
+  (reduce (core->integer 0)
 	  (make-binary-bitwise-op fixnum-ior bignum-ior)
 	  args))
 
 (define (exact-and . args)
-  (reduce (r5rs->integer -1)
+  (reduce (core->integer -1)
 	  (make-binary-bitwise-op fixnum-and bignum-and)
 	  args))
 
 (define (exact-xor . args)
-  (reduce (r5rs->integer 0)
+  (reduce (core->integer 0)
 	  (make-binary-bitwise-op fixnum-xor bignum-xor)
 	  args))
 
@@ -531,34 +531,34 @@
         ((fixnum? ei2)
          ; FIXME: correct but inefficient
          (not (exact-zero?
-               (exact-and (exact-arithmetic-shift-left (r5rs->integer 1) ei2)
+               (exact-and (exact-arithmetic-shift-left (core->integer 1) ei2)
                           ei1))))
         (else
          #f)))
 
 (define (exact-copy-bit ei1 ei2 ei3)
-  (let* ((mask (exact-arithmetic-shift-left (r5rs->integer 1) ei2)))
+  (let* ((mask (exact-arithmetic-shift-left (core->integer 1) ei2)))
     (exact-if mask
               (exact-arithmetic-shift-left ei3 ei2)
               ei1)))
 
 (define (exact-bit-field ei1 ei2 ei3)
   (let* ((mask (exact-not
-                (exact-arithmetic-shift-left (r5rs->integer -1) ei3))))
+                (exact-arithmetic-shift-left (core->integer -1) ei3))))
     (exact-arithmetic-shift-right (exact-and ei1 mask)
                                   ei2)))
 
 (define (exact-copy-bit-field to start end from)
-  (let* ((mask1 (exact-arithmetic-shift-left (r5rs->integer -1) start))
+  (let* ((mask1 (exact-arithmetic-shift-left (core->integer -1) start))
          (mask2 (exact-not
-                 (exact-arithmetic-shift-left (r5rs->integer -1) end)))
+                 (exact-arithmetic-shift-left (core->integer -1) end)))
          (mask (exact-and mask1 mask2)))
     (exact-if mask
               (exact-arithmetic-shift-left from start)
               to)))
 
 (define (exact-arithmetic-shift ei1 ei2)
-  (if (exact>=? ei2 (r5rs->integer 0))
+  (if (exact>=? ei2 (core->integer 0))
       (exact-arithmetic-shift-left ei1 ei2)
       (exact-arithmetic-shift-right ei1 (exact- ei2))))
 
@@ -621,11 +621,11 @@
              n start end)
       (let* ((width (exact- end start))
              (field (exact-bit-field n start end)))
-        (do ((reversed (r5rs->integer 0)
+        (do ((reversed (core->integer 0)
                        (exact+ (exact+ reversed reversed)
-                               (exact-and field (r5rs->integer 1))))
+                               (exact-and field (core->integer 1))))
              (field field (exact-arithmetic-shift-right field
-                                                        (r5rs->integer 1)))
-             (k width (exact- k (r5rs->integer 1))))
+                                                        (core->integer 1)))
+             (k width (exact- k (core->integer 1))))
             ((exact-zero? k)
              (exact-copy-bit-field n start end reversed))))))

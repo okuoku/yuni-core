@@ -5,14 +5,14 @@
 
 (define (number->string x . more)
   (if (null? more)
-      (number2string x (r5rs->integer 10) #f)
+      (number2string x (core->integer 10) #f)
       (let ((radix (car more))
 	    (precision (if (null? (cdr more))
 			   #f
 			   (cadr more))))
 	(if (and (exact-integer? radix)
-		 (integer<? (r5rs->integer 1) radix)
-		 (integer<? radix (r5rs->integer 37)))
+		 (integer<? (core->integer 1) radix)
+		 (integer<? radix (core->integer 37)))
 	    (number2string x radix precision)
 	    (begin
 	      (error "Bad radix" radix)

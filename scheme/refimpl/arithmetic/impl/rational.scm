@@ -16,11 +16,11 @@
 (define (rational-denominator p)
   (if (ratnum? p)
       (ratnum-denominator p)
-      (r5rs->integer 1)))
+      (core->integer 1)))
 
 (define (rational->ratnum r)
   (cond
-   ((exact-integer? r) (make-unreduced-ratnum r (r5rs->integer 1)))
+   ((exact-integer? r) (make-unreduced-ratnum r (core->integer 1)))
    ((ratnum? r) r)))
 
 (define (make-r*r->v op)

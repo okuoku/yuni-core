@@ -8,19 +8,19 @@
   (or (fixnum? obj)
       (bignum? obj)))
 
-(define (integer->r5rs m)
+(define (integer->core m)
   (if (fixnum? m)
-      (fixnum->r5rs m)
-      (bignum->r5rs m)))
+      (fixnum->core m)
+      (bignum->core m)))
 
-(define fixnum-least-r5rs (fixnum->r5rs (least-fixnum)))
-(define fixnum-greatest-r5rs (fixnum->r5rs (greatest-fixnum)))
+(define fixnum-least-r5rs (fixnum->core (least-fixnum)))
+(define fixnum-greatest-r5rs (fixnum->core (greatest-fixnum)))
 
-(define (r5rs->integer m)
+(define (core->integer m)
   (if (and (core:>= m fixnum-least-r5rs)
 	   (core:<= m fixnum-greatest-r5rs))
-      (r5rs->fixnum m)
-      (r5rs->bignum m)))
+      (core->fixnum m)
+      (core->bignum m)))
 
 (define (integer->bignum m)
   (if (bignum? m)
@@ -62,8 +62,8 @@
       (bignum-zero? x)))
 
 (define (integer-gcd x y)
-  (cond ((integer<? x (r5rs->integer 0)) (integer-gcd (integer-negate x) y))
-	((integer<? y (r5rs->integer 0)) (integer-gcd x (integer-negate y)))
+  (cond ((integer<? x (core->integer 0)) (integer-gcd (integer-negate x) y))
+	((integer<? y (core->integer 0)) (integer-gcd x (integer-negate y)))
 	((integer<? x y) (euclid y x))
 	(else (euclid x y))))
 
@@ -82,21 +82,21 @@
 		  (integer-abs y)))))
 
 (define (integer-abs x)
-  (if (integer<? x (r5rs->integer 0))
+  (if (integer<? x (core->integer 0))
       (integer-negate x)
       x))
 
 (define (integer-expt x y)
   (cond ((integer-zero? y)
-	 (r5rs->integer 1))
+	 (core->integer 1))
 	((integer-odd? y)
-	 (integer* x (integer-expt x (integer- y (r5rs->integer 1)))))
+	 (integer* x (integer-expt x (integer- y (core->integer 1)))))
 	(else 
-	 (let ((v (integer-expt x (integer-quotient y (r5rs->integer 2)))))
+	 (let ((v (integer-expt x (integer-quotient y (core->integer 2)))))
 	   (integer* v v)))))
 
 (define (integer-even? n)
-  (integer-zero? (integer-remainder n (r5rs->integer 2))))
+  (integer-zero? (integer-remainder n (core->integer 2))))
 
 (define (integer-odd? n)
   (not (integer-even? n)))
@@ -111,9 +111,9 @@
   (integer>=? n m))
 
 (define (integer-negative? m)
-  (integer<? m (r5rs->integer 0)))
+  (integer<? m (core->integer 0)))
 (define (integer-positive? m)
-  (integer>? m (r5rs->integer 0)))
+  (integer>? m (core->integer 0)))
 
 (define (integer-min m n)
   (if (integer<? m n) m n))
