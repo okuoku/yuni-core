@@ -19,8 +19,8 @@
 	  (ratnum-denominator r))))
 
 (define (r5rs->ratnum r)
-  (integer/ (r5rs->integer (r5rs:numerator r))
-	    (r5rs->integer (r5rs:denominator r))))
+  (integer/ (r5rs->integer (core:numerator r))
+	    (r5rs->integer (core:denominator r))))
 
 (define (integer/ m n)
   (cond ((integer<? n (r5rs->integer 0))

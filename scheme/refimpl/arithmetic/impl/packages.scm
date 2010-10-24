@@ -36,27 +36,27 @@
 		number->string string->number)))
 
 (define-interface r5rs-arithmetic-interface
-  (export r5rs:eqv?
-          r5rs:number? r5rs:complex? r5rs:real? r5rs:rational? r5rs:integer?
-	  r5rs:exact? r5rs:inexact?
-	  r5rs:zero? r5rs:positive? r5rs:negative? r5rs:odd? r5rs:even?
-	  r5rs:max r5rs:min
-	  r5rs:+ r5rs:* r5rs:- r5rs:/
-	  r5rs:= r5rs:< r5rs:<= r5rs:>= r5rs:>
-	  r5rs:abs
-	  r5rs:quotient r5rs:remainder r5rs:modulo
-	  r5rs:gcd r5rs:lcm
-	  r5rs:numerator r5rs:denominator
-	  r5rs:floor r5rs:ceiling r5rs:truncate r5rs:round
-	  r5rs:rationalize
-	  r5rs:exp r5rs:log r5rs:sin r5rs:cos r5rs:tan
-          r5rs:asin r5rs:acos r5rs:atan
-	  r5rs:sqrt r5rs:expt
-	  r5rs:make-rectangular r5rs:make-polar
-	  r5rs:real-part r5rs:imag-part
-	  r5rs:magnitude r5rs:angle
-	  r5rs:exact->inexact r5rs:inexact->exact
-	  r5rs:number->string r5rs:string->number))
+  (export core:eqv?
+          core:number? core:complex? core:real? core:rational? core:integer?
+	  core:exact? core:inexact?
+	  core:zero? core:positive? core:negative? core:odd? core:even?
+	  core:max core:min
+	  core:+ core:* core:- core:/
+	  core:= core:< core:<= core:>= core:>
+	  core:abs
+	  core:quotient core:remainder core:modulo
+	  core:gcd core:lcm
+	  core:numerator core:denominator
+	  core:floor core:ceiling core:truncate core:round
+	  core:rationalize
+	  core:exp core:log core:sin core:cos core:tan
+          core:asin core:acos core:atan
+	  core:sqrt core:expt
+	  core:make-rectangular core:make-polar
+	  core:real-part core:imag-part
+	  core:magnitude core:angle
+	  core:exact->inexact core:inexact->exact
+	  core:number->string core:string->number))
 
 (define-structure r5rs-arithmetic r5rs-arithmetic-interface
   (open scheme)
@@ -180,7 +180,7 @@
 (define-structures ((bignums bignums-interface)
 		    (bignums-r5rs (export bignum->r5rs r5rs->bignum)))
   (open scheme-sans-arithmetic
-	(modify scheme (prefix r5rs:) (expose >= = - remainder quotient * +))
+	(modify scheme (prefix core:) (expose >= = - remainder quotient * +))
   	srfi-9 ; define-record-type
 	(subset define-record-types (define-record-discloser))
 	srfi-23 ; ERROR
@@ -215,7 +215,7 @@
 (define-structures ((integers integers-interface)
 		    (integers-r5rs (export integer->r5rs r5rs->integer )))
   (open scheme-sans-arithmetic
-	(modify scheme (prefix r5rs:) (expose >= <=))
+	(modify scheme (prefix core:) (expose >= <=))
 	fixnums fixnums-r5rs
 	bignums bignums-r5rs)
   (files integer))
@@ -250,7 +250,7 @@
 (define-structures ((ratnums ratnums-interface)
 		    (ratnums-r5rs (export r5rs->ratnum)))
   (open scheme-sans-arithmetic
-	(modify scheme (prefix r5rs:) (expose numerator denominator))
+	(modify scheme (prefix core:) (expose numerator denominator))
 	srfi-9				; define-record-types
 	(subset define-record-types (define-record-discloser))
 	srfi-23				; ERROR
@@ -292,7 +292,7 @@
 (define-structures ((compnums compnums-interface)
 		    (compnums-r5rs (export r5rs->compnum)))
   (open scheme-sans-arithmetic
-	(modify scheme (prefix r5rs:) (expose real-part imag-part))
+	(modify scheme (prefix core:) (expose real-part imag-part))
 	srfi-9 ; define-record-types
 	(subset define-record-types (define-record-discloser))
 	flonums flonums-r5rs
@@ -311,7 +311,7 @@
 (define-structures ((recnums recnums-interface)
 		    (recnums-r5rs (export r5rs->recnum)))
   (open scheme-sans-arithmetic
-	(modify scheme (prefix r5rs:) (expose real-part imag-part))
+	(modify scheme (prefix core:) (expose real-part imag-part))
 	srfi-9 ; define-record-types
 	(subset define-record-types (define-record-discloser))
 	rationals 
@@ -639,7 +639,7 @@
 
 (define-structure test-strings-to-numbers (export)
   (open scheme-sans-arithmetic
-	(modify scheme (prefix r5rs:) (expose +))
+	(modify scheme (prefix core:) (expose +))
 	(subset generic-arithmetic (=))
 	r5rs-to-numbers
 	strings-to-numbers numbers-to-strings)
@@ -661,7 +661,7 @@
 
 (define-structure test-generic-arithmetic (export)
   (open scheme-sans-arithmetic
-	(modify scheme (prefix r5rs:) (expose +))
+	(modify scheme (prefix core:) (expose +))
 	(subset flonums (flinf+ flinf- flnan flnan?))
 	r5rs-to-numbers
 	strings-to-numbers
@@ -672,7 +672,7 @@
 
 (define-structure test-generic-arithmetic/mike (export)
   (open scheme-sans-arithmetic
-	(modify scheme (prefix r5rs:) (expose +))
+	(modify scheme (prefix core:) (expose +))
 	(subset flonums (flinf+ flinf- flnan flnan?))
 	r5rs-to-numbers
 	strings-to-numbers
@@ -683,7 +683,7 @@
 
 (define-structure test-generic-arithmetic/exact (export)
   (open scheme-sans-arithmetic
-	(modify scheme (prefix r5rs:) (expose +))
+	(modify scheme (prefix core:) (expose +))
 	r5rs-to-numbers
 	strings-to-numbers
         (subset fixnums (least-fixnum greatest-fixnum fixnum-width))
@@ -694,7 +694,7 @@
 
 (define-structure test-generic-arithmetic/inexact (export)
   (open scheme-sans-arithmetic
-	(modify scheme (prefix r5rs:) (expose +))
+	(modify scheme (prefix core:) (expose +))
 	(subset flonums (flinf+ flinf- flnan flnan?))
 	r5rs-to-numbers
 	strings-to-numbers

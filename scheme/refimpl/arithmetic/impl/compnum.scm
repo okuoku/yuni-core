@@ -30,8 +30,8 @@
   (make-compnum-polar (fl* a (flcos b)) (fl* a (flsin b))))
 
 (define (r5rs->compnum n)
-  (make-compnum (r5rs->flonum (r5rs:real-part n))
-		(r5rs->flonum (r5rs:imag-part n))))
+  (make-compnum (r5rs->flonum (core:real-part n))
+		(r5rs->flonum (core:imag-part n))))
 
 (define (compnum+ a b)
   (make-compnum (fl+ (compnum-real a) (compnum-real b))

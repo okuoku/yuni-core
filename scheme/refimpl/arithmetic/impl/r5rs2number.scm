@@ -5,17 +5,17 @@
 
 (define (r5rs->number n)
   (cond
-   ((r5rs:exact? n)
+   ((core:exact? n)
     (cond
-     ((r5rs:integer? n)
+     ((core:integer? n)
       (r5rs->integer n))
-     ((r5rs:rational? n)
+     ((core:rational? n)
       (r5rs->ratnum n))
-     ((r5rs:complex? n)
+     ((core:complex? n)
       (r5rs->recnum n))
      (else #f)))
    
-   ((r5rs:real? n)
+   ((core:real? n)
     (r5rs->flonum n))
    (else
     (r5rs->compnum n))))

@@ -25,20 +25,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define *high*
-  (let* ((i (r5rs:expt 2 (r5rs:- *width* 2)))
-         (i-1 (r5rs:- i 1)))
-    (r5rs:+ i i-1)))
+  (let* ((i (core:expt 2 (core:- *width* 2)))
+         (i-1 (core:- i 1)))
+    (core:+ i i-1)))
 
 (define *low*
-  (r5rs:- (r5rs:- *high*) 1))
+  (core:- (core:- *high*) 1))
 
-(define *half-width* (r5rs:quotient *width* 2))
+(define *half-width* (core:quotient *width* 2))
 
-(define *half-modulus* (r5rs:expt 2 *half-width*))
+(define *half-modulus* (core:expt 2 *half-width*))
 
-(define *half-high* (r5rs:- (r5rs:quotient *half-modulus* 2) 1))
+(define *half-high* (core:- (core:quotient *half-modulus* 2) 1))
 
-(define *half-low* (r5rs:- (r5rs:quotient *half-modulus* 2)))
+(define *half-low* (core:- (core:quotient *half-modulus* 2)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -78,10 +78,10 @@
   (if *fixnums-are-records*
       fixnum-record?
       (lambda (x)
-        (and (r5rs:number? x)
-             (r5rs:exact? x)
-             (r5rs:integer? x)
-             (r5rs:<= *low* x *high*)))))
+        (and (core:number? x)
+             (core:exact? x)
+             (core:integer? x)
+             (core:<= *low* x *high*)))))
 
 (define fixnum-rep
   (if *fixnums-are-records*
@@ -99,7 +99,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (make-fixnum n)
-  (if (r5rs:<= *low* n *high*)
+  (if (core:<= *low* n *high*)
       (really-make-fixnum n)
       (error "argument to make-fixnum is out of range" n)))
 
@@ -114,35 +114,35 @@
 ; Note that it returns *low* when *low* is divided by -1.
 
 (define (r5rs-fixnum-div x y)
-  (if (not (and (r5rs:<= *low* x *high*)
-                (r5rs:<= *low* y *high*)))
+  (if (not (and (core:<= *low* x *high*)
+                (core:<= *low* y *high*)))
       (error "non-fixnum arguments to r5rs-fixnum-div" x y)
-      (cond ((r5rs:positive? y)
-             (if (r5rs:>= x 0)
-                 (r5rs:quotient x y)
-                 (let ((z (r5rs:quotient x y)))
-                   (if (r5rs:= x (r5rs:* y z))
+      (cond ((core:positive? y)
+             (if (core:>= x 0)
+                 (core:quotient x y)
+                 (let ((z (core:quotient x y)))
+                   (if (core:= x (core:* y z))
                        z
-                       (r5rs:- z 1)))))
-            ((r5rs:zero? y)
+                       (core:- z 1)))))
+            ((core:zero? y)
              (error "zero divisor (fixnum-div)" x y))
-            ((r5rs:= y -1)
+            ((core:= y -1)
              ; Can't negate *low*, which is its own additive inverse.
-             (if (r5rs:= x *low*)
+             (if (core:= x *low*)
                  x
-                 (r5rs:- x)))
-            ((r5rs:= y *low*)
+                 (core:- x)))
+            ((core:= y *low*)
              ; Can't negate *low*, which is its own additive inverse.
-             (if (r5rs:= x *low*)
+             (if (core:= x *low*)
                  1
                  0))
             (else
-             (r5rs:- (r5rs-fixnum-div x (r5rs:- y)))))))
+             (core:- (r5rs-fixnum-div x (core:- y)))))))
 
 (define (r5rs-fixnum-mod x y)
-  (if (r5rs:= y -1)
+  (if (core:= y -1)
       0
-      (r5rs:- x (r5rs:* (r5rs-fixnum-div x y) y))))
+      (core:- x (core:* (r5rs-fixnum-div x y) y))))
 
 ; Given two fixnums and their fixnum sum, returns the carry.
 
@@ -174,9 +174,9 @@
   (let* ((a (fixnum-rep x))
          (b (fixnum-rep y))
          (d (r5rs-fixnum-div a b))
-	 (m (if (r5rs:= b -1)
+	 (m (if (core:= b -1)
                 0
-                (r5rs:- a (r5rs:* d b)))))
+                (core:- a (core:* d b)))))
     (values (make-fixnum d) (make-fixnum m))))
 
 (define (fixnum-div0+mod0 x y)
@@ -205,27 +205,27 @@
 (define (fixnum+/2 x y)
   (let* ((a (fixnum-rep x))
          (b (fixnum-rep y)))
-    (if (r5rs:>= a 0)
-        (if (r5rs:>= b 0)
-            (let* ((b- (r5rs:+ b *low*))
-                   (c (r5rs:+ a b-)))
-              (if (r5rs:< c 0)
-                  (make-fixnum (r5rs:+ a b))
-                  (make-fixnum (r5rs:+ c *low*))))
-            (make-fixnum (r5rs:+ a b)))
-        (if (r5rs:< b 0)
-            (let* ((b+ (r5rs:- b *low*))
-                   (c (r5rs:+ a b+)))
-              (if (r5rs:>= c 0)
-                  (make-fixnum (r5rs:+ a b))
-                  (make-fixnum (r5rs:- c *low*))))
-            (make-fixnum (r5rs:+ a b))))))
+    (if (core:>= a 0)
+        (if (core:>= b 0)
+            (let* ((b- (core:+ b *low*))
+                   (c (core:+ a b-)))
+              (if (core:< c 0)
+                  (make-fixnum (core:+ a b))
+                  (make-fixnum (core:+ c *low*))))
+            (make-fixnum (core:+ a b)))
+        (if (core:< b 0)
+            (let* ((b+ (core:- b *low*))
+                   (c (core:+ a b+)))
+              (if (core:>= c 0)
+                  (make-fixnum (core:+ a b))
+                  (make-fixnum (core:- c *low*))))
+            (make-fixnum (core:+ a b))))))
 
 (define (fixnum-/2 x y)
   (let ((b (fixnum-rep y)))
-    (if (r5rs:= b *low*)
+    (if (core:= b *low*)
         (fixnum+/2 x y)
-        (fixnum+/2 x (make-fixnum (r5rs:- b))))))
+        (fixnum+/2 x (make-fixnum (core:- b))))))
 
 ; (a * m + b) * (c * m + d)
 ; = (a * c) * m^2 + (a * d + b * c) * m + b * d
@@ -241,16 +241,16 @@
                (b (fixnum-rep b))
                (c (fixnum-rep c))
                (d (fixnum-rep d))
-               (a*d (r5rs:* a d))
-               (b*c (r5rs:* b c))
-               (b*d (r5rs:* b d))
+               (a*d (core:* a d))
+               (b*c (core:* b c))
+               (b*d (core:* b d))
                (a*d+b*c (fixnum+/2 (make-fixnum a*d) (make-fixnum b*c)))
                (hibits (fixnum-rep
                         (fixnum-mod a*d+b*c (make-fixnum *half-modulus*))))
-               (hibits (if (r5rs:> hibits *half-high*)
-                           (r5rs:- hibits *half-modulus*)
+               (hibits (if (core:> hibits *half-high*)
+                           (core:- hibits *half-modulus*)
                            hibits))
-               (hi (make-fixnum (r5rs:* hibits *half-modulus*)))
+               (hi (make-fixnum (core:* hibits *half-modulus*)))
                (lo (make-fixnum b*d)))
         (fixnum+/2 hi lo)))))))
 
@@ -365,17 +365,17 @@
 (define (least-fixnum) *fixnum-min*)
 (define (greatest-fixnum) *fixnum-max*)
 
-(define fixnum=? (make-transitive-pred (make-fixnum*fixnum->val r5rs:=)))
-(define fixnum>=? (make-transitive-pred (make-fixnum*fixnum->val r5rs:>=)))
-(define fixnum<=? (make-transitive-pred (make-fixnum*fixnum->val r5rs:<=)))
-(define fixnum>? (make-transitive-pred (make-fixnum*fixnum->val r5rs:>)))
-(define fixnum<? (make-transitive-pred (make-fixnum*fixnum->val r5rs:<)))
+(define fixnum=? (make-transitive-pred (make-fixnum*fixnum->val core:=)))
+(define fixnum>=? (make-transitive-pred (make-fixnum*fixnum->val core:>=)))
+(define fixnum<=? (make-transitive-pred (make-fixnum*fixnum->val core:<=)))
+(define fixnum>? (make-transitive-pred (make-fixnum*fixnum->val core:>)))
+(define fixnum<? (make-transitive-pred (make-fixnum*fixnum->val core:<)))
 
-(define fixnum-zero? (make-fixnum->val r5rs:zero?))
-(define fixnum-positive? (make-fixnum->val r5rs:positive?))
-(define fixnum-negative? (make-fixnum->val r5rs:negative?))
-(define fixnum-even? (make-fixnum->val r5rs:even?))
-(define fixnum-odd? (make-fixnum->val r5rs:odd?))
+(define fixnum-zero? (make-fixnum->val core:zero?))
+(define fixnum-positive? (make-fixnum->val core:positive?))
+(define fixnum-negative? (make-fixnum->val core:negative?))
+(define fixnum-even? (make-fixnum->val core:even?))
+(define fixnum-odd? (make-fixnum->val core:odd?))
 
 (define fixnum-min (make-min/max fixnum<?))
 (define fixnum-max (make-min/max fixnum>?))
@@ -396,9 +396,9 @@
 
 ;FIXME: these should go away
 
-(define fixnum-quotient (make-fixnum*fixnum->fixnum r5rs:quotient))
-(define fixnum-remainder (make-fixnum*fixnum->fixnum r5rs:remainder))
-(define fixnum-modulo (make-fixnum*fixnum->fixnum r5rs:modulo))
+(define fixnum-quotient (make-fixnum*fixnum->fixnum core:quotient))
+(define fixnum-remainder (make-fixnum*fixnum->fixnum core:remainder))
+(define fixnum-modulo (make-fixnum*fixnum->fixnum core:modulo))
 
 (define (fixnum-quotient+remainder a b)
   (values (fixnum-quotient a b)

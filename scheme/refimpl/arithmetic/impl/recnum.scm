@@ -27,8 +27,8 @@
 	  (recnum-imag r))))
 
 (define (r5rs->recnum n)
-  (make-recnum (r5rs->integer (r5rs:real-part n))
-	       (r5rs->integer (r5rs:imag-part n))))
+  (make-recnum (r5rs->integer (core:real-part n))
+	       (r5rs->integer (core:imag-part n))))
 
 (define (rectangulate x y)
   (if (rational=? y (r5rs->integer 0))

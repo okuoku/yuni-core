@@ -17,8 +17,8 @@
 (define fixnum-greatest-r5rs (fixnum->r5rs (greatest-fixnum)))
 
 (define (r5rs->integer m)
-  (if (and (r5rs:>= m fixnum-least-r5rs)
-	   (r5rs:<= m fixnum-greatest-r5rs))
+  (if (and (core:>= m fixnum-least-r5rs)
+	   (core:<= m fixnum-greatest-r5rs))
       (r5rs->fixnum m)
       (r5rs->bignum m)))
 

@@ -11,10 +11,10 @@
 
 (define (r5rs-sign x)			      
   (cond			
-   ((r5rs:negative? x) -1)
-   ((r5rs:positive? x) 0)
+   ((core:negative? x) -1)
+   ((core:positive? x) 0)
    ;; kludge
-   ((char=? #\- (string-ref (r5rs:number->string x) 0))
+   ((char=? #\- (string-ref (core:number->string x) 0))
     -1)
    (else 0)))
 
@@ -25,35 +25,35 @@
 ; implementation of ->exact on denormalized numbers.
 
 (define (r5rs-abs x)
-  (if (r5rs:< x 0.0)
-      (r5rs:- x)
+  (if (core:< x 0.0)
+      (core:- x)
       x))
 
 ; from Larceny:
 
 (define (r5rs-significand x)
-  (if (r5rs:= 0.0 x)
+  (if (core:= 0.0 x)
       0
       (let loop ((x (r5rs-abs x)))
-	(cond ((and (r5rs:<= .5 x) (r5rs:< x 1.0))
-	       (r5rs:inexact->exact
-                (r5rs:* x (r5rs:expt 2.0 r5rs-ieee-mantissa-width))))
-	      ((r5rs:< x .5) (loop  (r5rs:* 2.0 x)))
-	      ((r5rs:<= 1.0 x) (loop (r5rs:* .5 x)))))))
+	(cond ((and (core:<= .5 x) (core:< x 1.0))
+	       (core:inexact->exact
+                (core:* x (core:expt 2.0 r5rs-ieee-mantissa-width))))
+	      ((core:< x .5) (loop  (core:* 2.0 x)))
+	      ((core:<= 1.0 x) (loop (core:* .5 x)))))))
 
 (define (flsignificand x)
   (r5rs->integer (r5rs-significand (flonum->r5rs x))))
 
 (define (r5rs-exponent x)
-  (if (r5rs:= 0.0 x)
+  (if (core:= 0.0 x)
       0
       (let loop ((x (r5rs-abs x)) (k 0))
-	(cond ((and (r5rs:<= .5 x) (r5rs:< x 1.0))
-               (r5rs:- k r5rs-ieee-mantissa-width))
-	      ((r5rs:< x .5)
-               (loop (r5rs:* 2.0 x) (r5rs:- k 1)))
-	      ((r5rs:<= 1.0 x)
-               (loop (r5rs:* .5 x) (r5rs:+ k 1)))))))
+	(cond ((and (core:<= .5 x) (core:< x 1.0))
+               (core:- k r5rs-ieee-mantissa-width))
+	      ((core:< x .5)
+               (loop (core:* 2.0 x) (core:- k 1)))
+	      ((core:<= 1.0 x)
+               (loop (core:* .5 x) (core:+ k 1)))))))
 
 (define (flexponent x)
   (r5rs->integer (r5rs-exponent (flonum->r5rs x))))

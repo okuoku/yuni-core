@@ -37,29 +37,29 @@
 (define (r5rs->bignum m)
   (if (bignum? m)
       m
-      (cond ((r5rs:>= m 0)
+      (cond ((core:>= m 0)
 	     (make-bignum (r5rs->fixnum 1) (r5rs->magnitude m)))
-	    ((r5rs:= m (fixnum->r5rs (least-fixnum)))
+	    ((core:= m (fixnum->r5rs (least-fixnum)))
 	     (make-bignum (r5rs->fixnum -1) fixnum-min-magnitude))
 	    (else
-	     (make-bignum (r5rs->fixnum -1) (r5rs->magnitude (r5rs:- 0 m)))))))
+	     (make-bignum (r5rs->fixnum -1) (r5rs->magnitude (core:- 0 m)))))))
 
 (define (r5rs->magnitude n)
   (let ((radix (fixnum->r5rs radix)))
     (let recur ((n n))
-      (if (r5rs:= n 0)
+      (if (core:= n 0)
 	  zero-magnitude
-	  (let ((digit (r5rs->fixnum (r5rs:remainder n radix))))
+	  (let ((digit (r5rs->fixnum (core:remainder n radix))))
 	    (adjoin-digit digit
-			  (recur (r5rs:quotient n radix))))))))
+			  (recur (core:quotient n radix))))))))
 
 (define (bignum->r5rs n)             ;For debugging
-  (r5rs:* (fixnum->r5rs (bignum-sign n))
+  (core:* (fixnum->r5rs (bignum-sign n))
      (let recur ((digits (bignum-magnitude n)))
        (if (null? digits)
 	   0
-	   (r5rs:+ (fixnum->r5rs (car digits))
-	      (r5rs:* (recur (cdr digits)) (fixnum->r5rs radix)))))))
+	   (core:+ (fixnum->r5rs (car digits))
+	      (core:* (recur (cdr digits)) (fixnum->r5rs radix)))))))
 
 (define (make-integer sign mag)
   (if (fixnum-positive? sign)
