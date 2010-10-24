@@ -113,10 +113,10 @@
 ; semantics of fixnum-div in the current draft of SRFI 77.
 ; Note that it returns *low* when *low* is divided by -1.
 
-(define (r5rs-fixnum-div x y)
+(define (core-fixnum-div x y)
   (if (not (and (core:<= *low* x *high*)
                 (core:<= *low* y *high*)))
-      (error "non-fixnum arguments to r5rs-fixnum-div" x y)
+      (error "non-fixnum arguments to core-fixnum-div" x y)
       (cond ((core:positive? y)
              (if (core:>= x 0)
                  (core:quotient x y)
@@ -137,12 +137,12 @@
                  1
                  0))
             (else
-             (core:- (r5rs-fixnum-div x (core:- y)))))))
+             (core:- (core-fixnum-div x (core:- y)))))))
 
-(define (r5rs-fixnum-mod x y)
+(define (core-fixnum-mod x y)
   (if (core:= y -1)
       0
-      (core:- x (core:* (r5rs-fixnum-div x y) y))))
+      (core:- x (core:* (core-fixnum-div x y) y))))
 
 ; Given two fixnums and their fixnum sum, returns the carry.
 
@@ -173,7 +173,7 @@
 (define (fixnum-div+mod x y)
   (let* ((a (fixnum-rep x))
          (b (fixnum-rep y))
-         (d (r5rs-fixnum-div a b))
+         (d (core-fixnum-div a b))
 	 (m (if (core:= b -1)
                 0
                 (core:- a (core:* d b)))))

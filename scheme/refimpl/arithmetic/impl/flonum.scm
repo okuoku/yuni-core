@@ -25,12 +25,12 @@
 ; for playing around
 (define fl make-flonum)
 
-(define (make-fl*fl->fl r5rs-op)
+(define (make-fl*fl->fl core-op)
   (lambda (a b)
     (if (or (flnan? a)
 	    (flnan? b))
 	flnan
-	(make-flonum (r5rs-op (flonum-inexact a) (flonum-inexact b))))))
+	(make-flonum (core-op (flonum-inexact a) (flonum-inexact b))))))
 
 (define fl+/2 (make-fl*fl->fl core:+))
 (define (fl+ . args)
@@ -40,11 +40,11 @@
 (define (fl- arg0 . args)
   (reduce (make-flonum 0.0) fl-/2 (cons arg0 args)))
 
-(define (make-fl->fl r5rs-op)
+(define (make-fl->fl core-op)
   (lambda (a)
     (if (flnan? a)
 	flnan
-	(make-flonum (r5rs-op (flonum-inexact a))))))
+	(make-flonum (core-op (flonum-inexact a))))))
 
 (define fl*/2 (make-fl*fl->fl core:*))
 (define (fl* . args)
@@ -52,34 +52,34 @@
 
 (define (/* a b)
   (cond
-   ((core:= b r5rs-inf+)
+   ((core:= b core-inf+)
     (cond
-     ((or (core:= a r5rs-inf+) (core:= a r5rs-inf-))
-      r5rs-nan)
+     ((or (core:= a core-inf+) (core:= a core-inf-))
+      core-nan)
      ((core:< a 0.0)
       -0.0)
      (else
       0.0)))
-   ((core:= b r5rs-inf-)
+   ((core:= b core-inf-)
     (cond
-     ((or (core:= a r5rs-inf+) (core:= a r5rs-inf-))
-      r5rs-nan)
+     ((or (core:= a core-inf+) (core:= a core-inf-))
+      core-nan)
      ((core:< a 0.0)
       0.0)
      (else
       -0.0)))
    ((not (core:= b 0.0)) (core:/ a b))
-   ((core:= a 0.0) r5rs-nan)
-   ((core:> a 0.0) r5rs-inf+)
-   (else r5rs-inf-)))
+   ((core:= a 0.0) core-nan)
+   ((core:> a 0.0) core-inf+)
+   (else core-inf-)))
 
 (define fl//2 (make-fl*fl->fl /*))
 (define (fl/ arg0 . args)
   (reduce (make-flonum 1.0) fl//2 (cons arg0 args)))
 
-(define (make-fl*fl->val r5rs-op)
+(define (make-fl*fl->val core-op)
   (lambda (a b)
-    (r5rs-op (flonum-inexact a) (flonum-inexact b))))
+    (core-op (flonum-inexact a) (flonum-inexact b))))
 
 (define fl=? (make-transitive-pred (make-fl*fl->val core:=)))
 (define fl>=? (make-transitive-pred (make-fl*fl->val core:>=)))
@@ -87,9 +87,9 @@
 (define fl>? (make-transitive-pred (make-fl*fl->val core:>)))
 (define fl<? (make-transitive-pred (make-fl*fl->val core:<)))
 
-(define (make-fl->val r5rs-op)
+(define (make-fl->val core-op)
   (lambda (a)
-    (r5rs-op (flonum-inexact a))))
+    (core-op (flonum-inexact a))))
 
 (define (flzero? x)
   (fl=? x (core->flonum 0.0)))
@@ -110,14 +110,14 @@
 
 (define (log1* z)
   (cond
-   ((core:= r5rs-inf+ z)
-    r5rs-inf+)
-   ((core:= r5rs-inf- z)
-    r5rs-nan)
+   ((core:= core-inf+ z)
+    core-inf+)
+   ((core:= core-inf- z)
+    core-nan)
    ((not (core:= z z))
-    r5rs-nan)
+    core-nan)
    ((core:= 0.0 z)
-    r5rs-inf-)
+    core-inf-)
    (else
     (core:log z))))
 
@@ -143,14 +143,14 @@
 
 (define (sqrt* z)
   (cond
-   ((core:= r5rs-inf+ z)
-    r5rs-inf+)
-   ((core:= r5rs-inf- z)
-    r5rs-nan)
+   ((core:= core-inf+ z)
+    core-inf+)
+   ((core:= core-inf- z)
+    core-nan)
    ((core:< z 0.0)
-    r5rs-nan)
+    core-nan)
    ((not (core:= z z))
-    r5rs-nan)
+    core-nan)
    (else
     (core:sqrt z))))
 
@@ -171,12 +171,12 @@
           ((core:= b 0.0)
            1.0)
           (else
-           r5rs-nan)))
+           core-nan)))
    (else
     (cond ((core:= b 0.0)
            1.0)
           (else
-           r5rs-nan)))))
+           core-nan)))))
 
 (define flexpt (make-fl*fl->fl core:expt))
 
@@ -228,8 +228,8 @@
 (define flodd?
   (make-fl->val
    (lambda (x)
-     (if (or (core:= x r5rs-inf+)
-             (core:= x r5rs-inf-)
+     (if (or (core:= x core-inf+)
+             (core:= x core-inf-)
              (not (core:= x x)))
          #f
          (core:odd? x)))))
@@ -237,8 +237,8 @@
 (define fleven?
   (make-fl->val
    (lambda (x)
-     (if (or (core:= x r5rs-inf+)
-             (core:= x r5rs-inf-)
+     (if (or (core:= x core-inf+)
+             (core:= x core-inf-)
              (not (core:= x x)))
          #f
          (core:even? x)))))
@@ -246,26 +246,26 @@
 (define flinteger?
   (make-fl->val
    (lambda (x)
-     (if (or (core:= x r5rs-inf+)
-             (core:= x r5rs-inf-)
+     (if (or (core:= x core-inf+)
+             (core:= x core-inf-)
              (not (core:= x x)))
          #f
          (core:integer? x)))))
 
-(define r5rs-inf+ 1e1025)
-(define r5rs-inf- -1e1025)
-(define r5rs-nan (core:- r5rs-inf+ r5rs-inf+))
+(define core-inf+ 1e1025)
+(define core-inf- -1e1025)
+(define core-nan (core:- core-inf+ core-inf+))
 
-(define flinf+ (make-flonum r5rs-inf+))
-(define flinf- (make-flonum r5rs-inf-))
+(define flinf+ (make-flonum core-inf+))
+(define flinf- (make-flonum core-inf-))
 
-(define flnan (make-flonum r5rs-nan))
+(define flnan (make-flonum core-nan))
 
 (define flnan? (make-fl->val (lambda (x) (not (core:= x x)))))
 
 (define (infinite?* x)
-  (or (core:= x r5rs-inf+)
-      (core:= x r5rs-inf-)))
+  (or (core:= x core-inf+)
+      (core:= x core-inf-)))
 
 (define flinfinite? (make-fl->val infinite?*))
 
