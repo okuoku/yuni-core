@@ -4,8 +4,8 @@
 (test-begin "yuni core")
 
 ;; type definition
-(define-composite testtype
-                  (slot0 slot1 slot2))
+(define* testtype
+  (slot0 slot1 slot2))
 
 (test-begin "constructors")
 

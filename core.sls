@@ -1,6 +1,7 @@
 (library (yuni core)
          (export ~ := 
                  define*
+                 lambda*
                  define-composite
                  let-with let-with*
                  is-a?
@@ -165,7 +166,7 @@
     ((_ (spec0 ...) body ...)
      (lambda*0-itr () (spec0 ...) body ...))))
 
-(define-syntax annotated-lambda
+(define-syntax lambda*
   (syntax-rules ()
     ((_ sym (spec0 ...) body ...)
      (lambda*0 (spec0 ...)
@@ -175,7 +176,9 @@
 (define-syntax define*
   (syntax-rules ()
     ((_ (name spec0 ...) body ...)
-     (define name (annotated-lambda 'name (spec0 ...) body ...)))))
+     (define name (lambda* 'name (spec0 ...) (let () body ...))))
+    ((_ name spec)
+     (define-composite name spec))))
 
 (define-invalid-form :=)
 
