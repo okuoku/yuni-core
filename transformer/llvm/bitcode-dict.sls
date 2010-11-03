@@ -9,6 +9,7 @@
                  record-VALUE_SYMTAB_BLOCK 
                  record-METADATA_BLOCK 
                  record-CONSTANTS_BLOCK 
+                 code-linkage code-visibility code-callingconv
                  op-cast op-binary 
                  record-FUNCTION_BLOCK)
          (import (rnrs)
@@ -49,14 +50,14 @@
                   (UNABBREV_RECORD 3))
 
 (define-llvm-dict llvm-ir-blockid
-                  (MODULE 8)
-                  (PARAMATTR 9)
-                  (TYPE 10)
-                  (CONSTANTS 11)
-                  (FUNCTION 12)
-                  (TYPE_SYMTAB 13)
-                  (VALUE_SYMTAB 14)
-                  (METADATA 15)
+                  (MODULE_BLOCK 8)
+                  (PARAMATTR_BLOCK 9)
+                  (TYPE_BLOCK 10)
+                  (CONSTANTS_BLOCK 11)
+                  (FUNCTION_BLOCK 12)
+                  (TYPE_SYMTAB_BLOCK 13)
+                  (VALUE_SYMTAB_BLOCK 14)
+                  (METADATA_BLOCK 15)
                   (METADATA_ATTACHMENT 16))
 
 (define-llvm-dict record-VALUE_SYMTAB_BLOCK
@@ -169,6 +170,37 @@
                   (AND 10)
                   (OR 11)
                   (XOR 12))
+
+(define-llvm-dict code-callingconv
+                  (ccc 0)
+                  (fastcc 8)
+                  (coldcc 9)
+                  (x86_stdcallcc 64)
+                  (x86_fastcallcc 65)
+                  (arm_apcscc 66)
+                  (arm_aapcscc 67)
+                  (arm_aapcs_vfpcc 68))
+
+(define-llvm-dict code-linkage
+                  (external 0)
+                  (weak 1)
+                  (appending 2)
+                  (internal 3)
+                  (linkonce 4)
+                  (dllimport 5)
+                  (dllexport 6)
+                  (extern_weak 7)
+                  (common 8)
+                  (private 9)
+                  (weak_odr 10)
+                  (linkonce_odr 11)
+                  (available_externally 12)
+                  (linker_private 13))
+
+(define-llvm-dict code-visibility
+                  (default 0)
+                  (hidden 1)
+                  (protected 2))
 
 (define-llvm-dict record-FUNCTION_BLOCK
                   (DECLAREBLOCKS 1)
