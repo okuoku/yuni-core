@@ -186,7 +186,7 @@
             (d (cdr rest)))
         (cond
           ((char=? a #\.)
-           (list->string (reverse cur)))
+           (list->string cur))
           ((char=? a #\/)
            #f)
           (else
