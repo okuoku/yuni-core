@@ -50,10 +50,14 @@
             (display str p)
             (display (car rest) p)
             (itr (cdr rest))))
-        (display "(" p)
-        (display (car rest*) p)
-        (itr (cdr rest*))
-        (display ")" p))
+        (cond
+          ((pair? rest*)
+           (display "(" p)
+           (display (car rest*) p)
+           (itr (cdr rest*))
+           (display ")" p))
+          (else
+            (display "()" p))))
       (let ((op (car l))
             (rest (cdr l)))
         (cond
@@ -79,11 +83,9 @@
           ;; ((quote X) Y Z ...) => X(Y, Z); // function call
           ((and (list? op) (eq? 'quote (car op)))
            (let ((name (cirs-exp->string (cadr op)))
-                 (args (cdr rest)))
+                 (args rest))
              (display name p)
-             (display "(" p)
-             (fold-ops ", " (map cirs-exp->string args))
-             (display ")" p)))
+             (fold-ops ", " (map cirs-exp->string args))))
           (else
             (case op
               ;; (comment X) => /* X */ 
@@ -161,8 +163,8 @@
       (indent)
       (out str)
       (out "\n"))
-    (define (emit-exp obj)
-      (line (string-append (cirs-exp->string obj) " ;")))
+    (define (out-exp obj)
+      (out (cirs-exp->string obj)))
     (define (emit-block body-k)
       (out " {\n")
       (indent+)
@@ -223,7 +225,7 @@
           (case op
             ((if)
              (outi "if (")
-             (put-form (car rest))
+             (out-exp (car rest))
              (out ")")
              (case (length rest)
                ;; (if P X) => if (P) { X }
@@ -250,7 +252,7 @@
                                 (emit-block (^[] (put-begin code))))
                                (else
                                  (out " else if (")
-                                 (put-form op)
+                                 (out-exp op)
                                  (out ")")
                                  (emit-block (^[] (put-begin code))))))
                            (complain e)))
@@ -262,7 +264,7 @@
              (let ((pred (car rest))
                    (cases (cdr rest)))
                (outi "switch (")
-               (put-form pred)
+               (out-exp pred)
                (out ")")
                (emit-block (^[]
                              (for-each (^e (if (list? e)
@@ -280,7 +282,7 @@
             ;; (while P ...) => while (P) { ... }
             ((while)
              (outi "while (")
-             (put-form (car rest))
+             (out-exp (car rest))
              (out ")")
              (emit-block (^[] (put-begin (cdr rest)))))
 
@@ -289,7 +291,7 @@
              (outi "do ")
              (emit-block (^[] (put-begin (cdr rest))))
              (out " while (")
-             (put-form (car rest))
+             (out-exp (car rest))
              (out ");\n"))
 
             ;; (for (X Y Z) ...) => for ( X ; Y ; Z ) { ... }
@@ -302,11 +304,11 @@
                        (y (cadr cntl))
                        (z (caddr cntl)))
                    (outi "for (")
-                   (when x (put-form x))
+                   (when x (out-exp x))
                    (out " ; ")
-                   (when y (put-form y))
+                   (when y (out-exp y))
                    (out " ; ")
-                   (when z (put-form z))
+                   (when z (out-exp z))
                    (out ")")
                    (emit-block (^[] (put-begin code))))
                  (complain cntl))))
@@ -314,7 +316,7 @@
             ;; (goto X) => goto X;
             ((goto)
              (outi "goto ")
-             (put-form (car rest))
+             (out-exp (car rest))
              (out ";\n"))
 
             ;; (continue) => continue;
@@ -333,13 +335,13 @@
                 (outi "return;\n"))
                (else
                  (outi "return ")
-                 (put-form (car rest))
+                 (out-exp (car rest))
                  (out ";\n"))))
 
             ;; (label X) => X:
             ((label)
              ;; labels won't be indented
-             (out (cirs-exp->string (car rest)))
+             (out-exp (car rest))
              (out " :\n"))
 
             ;; struct / union
@@ -357,7 +359,7 @@
                  ((union)
                   (outi "union ")))
                (emit-block (^[] (emit-members members)))
-               (out (cirs-exp->string decl))
+               (out-exp decl)
                (out "; \n")))
 
             ;; (def NAME DEF attribute ...)
@@ -448,7 +450,10 @@
             |#
 
             (else
-              (out (cirs-exp->string l)))))
+              (indent)
+              (out-exp l)
+              (out ";\n")
+              )))
         (out (cirs-exp->string l))))
     (for-each put-form obj)))
     ;; === keywords ===
