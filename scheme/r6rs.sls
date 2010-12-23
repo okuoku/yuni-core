@@ -328,7 +328,7 @@
                         * + - / < <= = > >=
                         abs acos asin atan cos
                         ceiling complex?  denominator exp expt floor
-                        gcd imag-part inexact? integer?
+                        gcd imag-part exact? inexact? integer?
                         lcm log magnitude make-polar make-rectangular
                         max min negative?
                         number? numerator odd?  number->string string->number
@@ -424,6 +424,24 @@
                         string-normalize-nfkd
                         string-normalize-nfc
                         string-normalize-nfkc
+
+                        ;; implemented in (yuni scheme refimpl r6rs-enum impl enum)
+
+                        make-enumeration
+                        enum-set-universe
+                        enum-set-indexer
+                        enum-set-constructor
+                        enum-set->list
+                        enum-set-member?
+                        enum-set-subset?
+                        enum-set=?
+                        enum-set-union
+                        enum-set-intersection
+                        enum-set-difference
+                        enum-set-complement
+                        enum-set-projection
+                        define-enumeration
+
                         ) run expand)
            (for (yuni scheme refimpl arithmetic r6rs base) run expand)
            (for (yuni scheme r6rs arithmetic bitwise) run expand)
@@ -432,4 +450,5 @@
            (for (yuni scheme misc io) run expand)
            (for (yuni scheme refimpl r6rs-reader impl reader) run expand)
            (for (yuni scheme refimpl r6rs-unicode impl unicode) run expand)
+           (for (yuni scheme refimpl r6rs-enum impl enum) run expand)
            )) ;; rnrs

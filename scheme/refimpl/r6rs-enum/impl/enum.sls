@@ -13,7 +13,7 @@
 ;
 ; Finite sets of symbols, and their use as enumeration types.
 
-(library (r6rs enum)
+(library (yuni scheme refimpl r6rs-enum impl enum)
   (export make-enumeration
           enum-set-universe
           enum-set-indexer
@@ -28,11 +28,7 @@
           enum-set-complement
           enum-set-projection
           define-enumeration)     ; syntax, untested, with known bugs
-  (import (r6rs base)
-          (r6rs list)
-          (r6rs records procedural)
-          (r6rs hash-tables)
-          (r6rs arithmetic fixnum))
+  (import (yuni scheme refimpl r6rs-enum backend))
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -381,6 +377,36 @@
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(define* enumeration:type  
+  (universe indexer constructor deconstructor))
+(define (enumeration:make-type x y z w)
+  (make enumeration:type
+        (universe x)
+        (indexer y)
+        (constructor z)
+        (deconstructor w)))
+(define (enumeration:type-universe x)
+  (let-with x (universe) universe))
+(define (enumeration:type-indexer x)
+  (let-with x (indexer) indexer))
+(define (enumeration:type-constructor x)
+  (let-with x (constructor) constructor))
+(define (enumeration:type-deconstructor x)
+  (let-with x (deconstructor) deconstructor))
+
+(define* enumeration:set
+  (bits universe-type))
+
+(define (enumeration:make-set x y)
+  (make enumeration:set
+        (bits x)
+        (universe-type y)))
+(define (enumeration:set-bits x)
+  (let-with x (bits) bits))
+(define (enumeration:set-type x)
+  (let-with x (universe-type) universe-type))
+
+#|
 (define enumeration:type
   (make-record-type-descriptor 'enumeration #f #f #f #f
    '((immutable universe)       ; thunk that returns universal set
@@ -404,6 +430,8 @@
 (define enumeration:make-set (record-constructor enumeration:set))
 (define enumeration:set-bits (record-accessor enumeration:set 0))
 (define enumeration:set-type (record-accessor enumeration:set 1))
+|#
+
 
 ; Given:
 ; a canonical list of symbols, without duplicates
@@ -462,6 +490,7 @@
      (lambda (v0 v1)
        (values v0 v1 m maxdistance)))))
 
+#|
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Basic tests.
@@ -535,5 +564,6 @@
        #t)))))
 
 (basic-enumerations-tests)
+|#
 
 )
