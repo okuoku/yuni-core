@@ -5,68 +5,52 @@
            quote
            error
            string-append
-           symbol->string
-           string
-           case
-           else
-           apply
-           map
-           lambda
-           if
-           memq
-           null?
-           cons
-           car
-           cdr
-           let
-           =
-           string->symbol
-           list->string
+           symbol->string string
+           case else
+           apply map
+           lambda if
+           memq null?
+           cons car cdr let
+           string->symbol list->string
            reverse
-           cond
            char=?
-           and
-           <
-           +
-           string-ref
+           cond and or
            call-with-values
-           or
-           string->list
-           substring
-           string-length
-           -
+           string-ref
+           string->list substring string-length
            make-string
            eq?
            eof-object?
            char-general-category
-           >=
            string-set!
-           exact?
-           integer?
-           <=
            begin
-           string->number
            eof-object
            list->vector
            u8-list->bytevector
-           *
-           char->integer
+           integer->char char->integer
            values
-           integer->char
            not
-           char?
-           char-whitespace?
+           char?  char-whitespace?
            do
            set!
-           read-char
-           peek-char
+           read-char peek-char
            string=?
            list
-           >
+
+           ;; arith
+           exact?  integer?
+           = < + - >= > <= *
+           string->number
            )
          (import
-           (rnrs)
+           (except (rnrs)
+                   exact? integer?
+                   = < + - >= > <= *
+                   string->number)
+           (only (yuni scheme refimpl arithmetic r6rs base)
+                 exact? integer?
+                 = < + - >= > <= *
+                 string->number)
            (rnrs mutable-strings)
-           )
-
+           ) 
 )

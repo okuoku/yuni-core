@@ -447,9 +447,17 @@
                         real->flonum
                         fldiv0-and-mod0 fldiv0 flmod0
                         flnumerator fldenominator
+
+                        ;; implemented in (yuni scheme misc io)
+                        read write
+
+                        ;; implemented in (yuni scheme refimpl r6rs-reader impl reader)
+                        get-datum
                         ) run expand)
            (for (yuni scheme refimpl arithmetic r6rs base) run expand)
            (for (yuni scheme r6rs arithmetic bitwise) run expand)
            (for (yuni scheme r6rs arithmetic fixnums) run expand)
            (for (yuni scheme r6rs arithmetic flonums) run expand)
+           (for (yuni scheme misc io) run expand)
+           (for (yuni scheme refimpl r6rs-reader impl reader) run expand)
            )) ;; rnrs

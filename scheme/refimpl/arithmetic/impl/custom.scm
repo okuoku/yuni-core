@@ -41,7 +41,7 @@
 ; Define as #t if fixnums are represented as records.
 ; Otherwise fixnums will be represented as exact integers.
 
-(define *fixnums-are-records* #t)
+(define *fixnums-are-records* #f)
 
 ; Define as #t if flonums are represented as records.
 ; Otherwise flonums will be represented as inexact reals.

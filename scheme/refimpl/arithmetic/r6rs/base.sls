@@ -9,7 +9,7 @@
            complex?
            denominator
            exp expt floor
-           gcd imag-part inexact? integer?
+           gcd imag-part exact? inexact? integer?
            lcm log magnitude
            make-polar make-rectangular
            max min
