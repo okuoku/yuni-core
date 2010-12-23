@@ -1,3 +1,14 @@
+(library (yuni scheme refimpl arithmetic impl contagion-ex)
+         (export contagion/ex
+                 pcontagion/ex
+                 econtagion/ex
+                 )
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl arithmetic-util)
+                 (yuni scheme refimpl arithmetic impl coercion)
+                 (yuni scheme refimpl arithmetic impl bignum)
+                 (yuni scheme refimpl arithmetic impl contagion)
+                 )
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -116,3 +127,4 @@
 (define pcontagion/ex (lambda (a b retry)
 			(do-contagion pmatrix a b retry)))
 
+)

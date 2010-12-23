@@ -1,3 +1,16 @@
+(library (yuni scheme refimpl arithmetic impl rational)
+         (export rational-
+                 rational-negative?
+                 rational->string
+                 rational=?
+                 rational/
+                 rational+
+                 rational*
+                 rational<?
+                 )
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl integer)
+                 (yuni scheme refimpl arithmetic impl ratnum))
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -50,3 +63,4 @@
   (cond
    ((exact-integer? b) (integer->string b r))
    ((ratnum? b) (ratnum->string b r))))
+)

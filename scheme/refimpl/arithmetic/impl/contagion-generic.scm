@@ -1,3 +1,20 @@
+(library (yuni scheme refimpl arithmetic impl contagion-generic)
+         (export contagion/will
+                 pcontagion/will
+                 econtagion/will
+                 )
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl coercion)
+                 (yuni scheme refimpl arithmetic impl bignum)
+                 (yuni scheme refimpl arithmetic impl arithmetic-util)
+                 (yuni scheme refimpl arithmetic impl integer)
+                 (yuni scheme refimpl arithmetic impl compnum)
+                 (yuni scheme refimpl arithmetic impl recnum)
+                 (yuni scheme refimpl arithmetic impl flonum)
+                 (yuni scheme refimpl arithmetic impl flonum2rational)
+                 (yuni scheme refimpl arithmetic impl rational2flonum)
+                 (yuni scheme refimpl arithmetic impl contagion))
+
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -41,8 +58,10 @@
 	      (b (x->comp-2 b)))
 	  (retry a b)))))
 
+#|
 (define (always x)
   #t)
+|#
 
 (define (zero x)
   (core->flonum 0.0))
@@ -278,3 +297,4 @@
 (define pcontagion/will (lambda (a b retry)
 			  (do-contagion pmatrix a b retry)))
 
+)

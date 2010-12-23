@@ -1,3 +1,32 @@
+(library (yuni scheme refimpl arithmetic impl ratnum)
+         (export ratnum?
+                 ratnum->string
+                 ratnum-negative?
+                 ratnum-positive?
+                 ratnum-floor
+                 ratnum-truncate
+                 ratnum=?
+                 ratnum<?
+                 ratnum-
+                 ratnum+
+                 ratnum/
+                 ratnum*
+                 make-unreduced-ratnum
+                 ratnum-numerator
+                 ratnum-denominator
+                 integer/
+                 ratnum-abs
+                 core->ratnum
+                 ratnum-max
+                 ratnum-min
+                 ratnum>?
+                 ratnum>=?
+                 ratnum<=?
+                 )
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl integer)
+                 )
+
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -5,6 +34,20 @@
 
 ; Rational arithmetic
 
+(define* :ratnum
+  (num den))
+(define (ratnum? x)
+  (is-a? x :ratnum))
+(define (ratnum-numerator x)
+  (let-with x (num) num))
+(define (ratnum-denominator x)
+  (let-with x (den) den))
+(define (make-unreduced-ratnum x y)
+  (make :ratnum
+        (num x)
+        (den y)))
+    
+#|
 (define-record-type :ratnum
   (make-unreduced-ratnum num den)
   ratnum?
@@ -17,6 +60,7 @@
     (list 'ratnum
 	  (ratnum-numerator r)
 	  (ratnum-denominator r))))
+|#
 
 (define (core->ratnum r)
   (integer/ (core->integer (core:numerator r))
@@ -131,3 +175,4 @@
    (integer->string (ratnum-numerator r) radix)
    "/"
    (integer->string (ratnum-denominator r) radix)))
+)

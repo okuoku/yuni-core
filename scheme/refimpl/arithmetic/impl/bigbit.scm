@@ -1,3 +1,20 @@
+(library (yuni scheme refimpl arithmetic impl bigbit)
+         (export bignum-arithmetic-shift-left
+                 bignum-arithmetic-shift-right
+                 bignum-and
+                 bignum-xor
+                 bignum-ior
+                 bignum-not
+                 bignum-first-bit-set
+                 bignum-length
+                 bignum-bit-count
+                 )
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl nary)
+                 (yuni scheme refimpl arithmetic impl custom)
+                 (yuni scheme refimpl arithmetic impl fixnum)
+                 (yuni scheme refimpl arithmetic impl bignum)
+                 )
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -286,4 +303,4 @@
             ((fixnum-positive? (car bigits))
              (fixnum+ bits (fixnum-first-bit-set (car bigits))))))))
 
-
+)

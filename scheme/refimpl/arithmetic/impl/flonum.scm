@@ -1,9 +1,81 @@
+(library (yuni scheme refimpl arithmetic impl flonum)
+         (export flonum->core
+                 fl*
+                 fllog
+                 fl/
+                 core->flonum
+                 fixnum->flonum
+                 fl=?
+                 flinf+
+                 flinf-
+                 flnan?
+                 flinteger?
+                 flceiling
+                 fl-
+                 flinfinite?
+                 flpositive?
+                 flzero?
+                 flnegative?
+                 flabs
+                 flexp
+                 flcos
+                 flsin
+                 flsqrt
+                 fl+
+                 flatan
+                 flonum?
+                 flnan
+                 flacos
+                 flasin
+                 fltan
+                 flfloor
+                 flquotient+remainder
+                 flremainder
+                 flquotient
+                 flmax
+                 flmin
+                 flfinite?
+                 fleven?
+                 flodd?
+                 fl>?
+                 fl>=?
+                 fl<?
+                 flonum->fixnum
+                 fl<=?
+                 (rename (fldiv+mod fldiv-and-mod))
+                 fldiv
+                 flmod
+                 fltruncate
+                 flround
+                 flexpt
+                 )
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl nary)
+                 (yuni scheme refimpl arithmetic impl custom)
+                 (yuni scheme refimpl arithmetic impl bitwise)
+                 (yuni scheme refimpl arithmetic impl fixnum)
+                 )
+
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
 ; Flonums in terms of R5RS; assumes underlying IEEE-like representation
 
+(define* :flonum
+  (inexact))
 
+(define (really-make-flonum x)
+  (make :flonum
+        (inexact x)))
+
+(define (flonum? x)
+  (is-a? x :flonum))
+
+(define (flonum-inexact x)
+  (let-with x (inexact) inexact))
+
+
+#|
 ; SRFI 9
 (define-record-type :flonum
   (really-make-flonum inexact)
@@ -14,6 +86,7 @@
 (define-record-discloser :flonum
   (lambda (r)
     (list 'flonum (flonum-inexact r))))
+|#
 
 (define (make-flonum n)
   (really-make-flonum (core:exact->inexact n)))
@@ -274,3 +347,5 @@
        (not (infinite?* x))))
 
 (define flfinite? (make-fl->val finite?*))
+
+)

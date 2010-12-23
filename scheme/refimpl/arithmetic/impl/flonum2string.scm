@@ -1,3 +1,12 @@
+(library (yuni scheme refimpl arithmetic impl flonum2string)
+         (export flonum->string)
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl integer)
+                 (yuni scheme refimpl arithmetic impl flonum-ieee)
+                 (yuni scheme refimpl arithmetic impl flonum)
+                 (yuni scheme refimpl arithmetic impl flonum2rational)
+                 )
+
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -330,3 +339,4 @@
       fl-ieee-mantissa-width
       (integer- (integer+ exp fl-ieee-mantissa-width)
 		fl-ieee-min-exponent/denormalized)))
+)

@@ -1,3 +1,49 @@
+(library (yuni scheme refimpl arithmetic impl bignum)
+         (export zero-magnitude?
+                 log-radix
+                 bignum-sign
+                 bignum-magnitude
+                 bignum?
+                 bignum<=?
+                 bignum-negate
+                 high-digits
+                 bignum+
+                 adjoin-digit
+                 fixnum->magnitude
+                 bignum->fixnum
+                 fixnum->bignum
+                 bignum>?
+                 low-digit
+                 zero-magnitude
+                 bignum<?
+                 bignum-
+                 make-integer
+                 bignum-positive?
+                 radix
+                 bignum-zero?
+                 core->bignum
+                 bignum->string
+                 bignum=?
+                 bignum-quotient+remainder
+                 bignum-remainder
+                 bignum-quotient
+                 bignum*
+                 bignum->core
+                 bignum-abs
+                 bignum-max
+                 bignum-min
+                 bignum-even?
+                 bignum-odd?
+                 bignum-negative?
+                 bignum>=?
+                 )
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl nary)
+                 (yuni scheme refimpl arithmetic impl custom)
+                 (yuni scheme refimpl arithmetic impl bitwise)
+                 (yuni scheme refimpl arithmetic impl fixnum)
+                 )
+
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -15,6 +61,22 @@
 
 ; from Scheme 48
 
+(define* :bignum
+  (sign magnitude))
+
+(define (make-bignum x y)
+  (make :bignum
+        (sign x)
+        (magnitude y)))
+(define (bignum? x)
+  (is-a? x :bignum))
+
+(define (bignum-sign x)
+  (let-with x (sign) sign))
+(define (bignum-magnitude x)
+  (let-with x (magnitude) magnitude))
+
+#|
 (define-record-type :bignum
   (make-bignum sign magnitude)
   bignum?
@@ -25,6 +87,7 @@
   (lambda (r)
     (list 'bignum
 	  (bignum->core r))))
+|#
 
 (define (fixnum->bignum m)
   (cond ((fixnum>=? m (core->fixnum 0))
@@ -459,3 +522,4 @@
    (lambda (q r)
      (cont (make-bignum (fixnum* (bignum-sign m) (bignum-sign n)) q)
 	   (make-bignum (bignum-sign m) r)))))
+)

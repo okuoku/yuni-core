@@ -1,3 +1,39 @@
+(library (yuni scheme refimpl arithmetic impl integer)
+         (export core->integer
+                 integer->string
+                 integer<?
+                 integer-
+                 integer-quotient
+                 integer=?
+                 integer-abs
+                 integer-negative?
+                 integer-positive?
+                 integer*
+                 integer+
+                 integer-negate
+                 integer-gcd
+                 exact-integer?
+                 integer>=?
+                 integer->core
+                 integer>?
+                 integer<=?
+                 integer-expt
+                 integer-quotient+remainder
+                 integer-zero?
+                 integer-even?
+                 integer-max
+                 integer-odd?
+                 integer-remainder
+                 integer-min
+                 integer->bignum
+                 )
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl nary)
+                 (yuni scheme refimpl arithmetic impl custom)
+                 (yuni scheme refimpl arithmetic impl fixnum)
+                 (yuni scheme refimpl arithmetic impl bignum)
+                 (yuni scheme refimpl arithmetic impl bigbit)
+                 )
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -80,11 +116,12 @@
 	g
 	(integer* (integer-quotient (integer-abs x) g)
 		  (integer-abs y)))))
-
+#| ;; dupe??
 (define (integer-abs x)
   (if (integer<? x (core->integer 0))
       (integer-negate x)
       x))
+|#
 
 (define (integer-expt x y)
   (cond ((integer-zero? y)
@@ -150,3 +187,5 @@
 (define integer-bitwise-and
   (make-binary-bitwise-op fixnum-and bignum-and))
 (define integer-arithmetic-shift-left (make-int*int->val bignum-arithmetic-shift-left))
+
+)

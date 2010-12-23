@@ -1,3 +1,77 @@
+(library (yuni scheme refimpl arithmetic impl generic)
+         (export 
+           number?
+           complex?
+           real?
+           real-valued?
+           rational?
+           rational-valued?
+           integer?
+           integer-valued?
+           exact?
+           inexact?
+           = < <= >= >
+           zero?
+           positive?
+           negative?
+           odd?
+           even?
+           nan?
+           finite?
+           infinite?
+           min
+           max
+           + - * /
+           abs
+           quotient
+           remainder
+           modulo
+           div+mod
+           div
+           mod
+           gcd
+           lcm
+           numerator
+           denominator
+           floor
+           ceiling
+           truncate
+           round
+           exp
+           sin
+           cos
+           tan
+           asin
+           acos
+           atan
+           log
+           sqrt
+           expt
+           make-rectangular
+           make-polar
+           real-part
+           imag-part
+           magnitude
+           angle
+           (rename (x->inexact inexact)
+                   (x->exact exact))
+           rationalize
+           exact-rational?)
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl nary)
+                 (yuni scheme refimpl arithmetic impl contagion-generic)
+                 (yuni scheme refimpl arithmetic impl arithmetic-util)
+                 (yuni scheme refimpl arithmetic impl flonum2rational)
+                 (yuni scheme refimpl arithmetic impl rational2flonum)
+                 (yuni scheme refimpl arithmetic impl integer)
+                 (yuni scheme refimpl arithmetic impl coercion)
+                 (yuni scheme refimpl arithmetic impl fixnum)
+                 (yuni scheme refimpl arithmetic impl bignum)
+                 (yuni scheme refimpl arithmetic impl ratnum)
+                 (yuni scheme refimpl arithmetic impl recnum)
+                 (yuni scheme refimpl arithmetic impl flonum)
+                 (yuni scheme refimpl arithmetic impl compnum))
+
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -642,3 +716,4 @@
          (if (and (exact? x) (exact? y))
              (core->integer 0)
              (x->inexact (core->integer 0))))))
+)

@@ -1,3 +1,30 @@
+(library (yuni scheme refimpl arithmetic impl compnum)
+         (export compnum?
+                 compnum->string
+                 core->compnum
+                 compnum-real
+                 compnum-imag
+                 make-compnum
+                 make-compnum-polar
+                 compnum-atan1
+                 compnum-acos
+                 compnum-asin
+                 compnum-tan
+                 compnum-cos
+                 compnum-sin
+                 compnum-exp
+                 compnum/
+                 compnum*
+                 compnum+
+                 compnum-
+                 compnum-zero?
+                 compnum=?
+                 )
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl flonum)
+                 (yuni scheme refimpl arithmetic impl flonum2string)
+                 )
+
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -12,6 +39,23 @@
 ; having to resort to confusing recursion in the generic arithmetic.
 ; But suit yourself.
 
+(define* :compnum
+  (real imag))
+
+(define (make-compnum x y)
+  (make :compnum
+        (real x)
+        (imag y)))
+
+(define (compnum? x)
+  (is-a? x :compnum))
+
+(define (compnum-real x)
+  (let-with x (real) real))
+(define (compnum-imag x)
+  (let-with x (imag) imag))
+
+#|
 (define-record-type :compnum
   (make-compnum real imag)
   compnum?
@@ -23,6 +67,7 @@
     (list 'compnum
 	  (compnum-real r)
 	  (compnum-imag r))))
+|#
 
 (define compnum make-compnum)
 
@@ -152,3 +197,4 @@
 			   ""))
 		     ii
 		     "i"))))
+)

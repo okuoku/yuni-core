@@ -1,3 +1,23 @@
+(library (yuni scheme refimpl arithmetic impl recnum)
+         (export recnum? 
+                 core->recnum
+                 recnum->string
+                 recnum-real
+                 recnum-imag
+                 make-recnum
+                 rectangulate
+                 recnum*
+                 recnum/
+                 recnum-
+                 recnum+
+                 recnum=?
+                 )
+
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl integer)
+                 (yuni scheme refimpl arithmetic impl rational)
+                 )
+
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -14,6 +34,24 @@
 ; Note that, unlike the COMPNUMS operations, these can return
 ; ratnums.
 
+(define* :recnum
+  (real imag))
+
+(define (make-recnum x y)
+  (make :recnum
+        (real x)
+        (imag y)))
+
+(define (recnum? x)
+  (is-a? x :recnum))
+
+(define (recnum-real x)
+  (let-with x (real) real))
+
+(define (recnum-imag x)
+  (let-with x (imag) imag))
+
+#|
 (define-record-type :recnum
   (make-recnum real imag)
   recnum?
@@ -25,6 +63,7 @@
     (list 'recnum
 	  (recnum-real r)
 	  (recnum-imag r))))
+|#
 
 (define (core->recnum n)
   (make-recnum (core->integer (core:real-part n))
@@ -77,3 +116,4 @@
 		     "+"
 		     (rational->string (recnum-imag r) radix)
 		     "i")))
+)

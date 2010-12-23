@@ -1,3 +1,40 @@
+(library (yuni scheme refimpl arithmetic impl generic-ex)
+         (export
+           (rename
+             (exact-div+mod div-and-mod)
+             (exact-div0+mod0 div0-and-mod0)
+             (exact-div0 div0)
+             (exact-mod0 mod0)
+             (exact-sqrt exact-integer-sqrt)
+             (exact-bit-field bitwise-bit-field)
+             (exact-length bitwise-length)
+             (exact-not bitwise-not)
+             (exact-ior bitwise-ior)
+             (exact-and bitwise-and)
+             (exact-xor bitwise-xor)
+             (exact-if bitwise-if)
+             (exact-bit-count bitwise-bit-count)
+             (exact-first-bit-set bitwise-first-bit-set)
+             (exact-bit-set? bitwise-bit-set?)
+             (exact-copy-bit bitwise-copy-bit)
+             (exact-copy-bit-field bitwise-copy-bit-field)
+             (exact-arithmetic-shift bitwise-arithmetic-shift)
+             (exact-arithmetic-shift-left bitwise-arithmetic-shift-left)
+             (exact-arithmetic-shift-right bitwise-arithmetic-shift-right)
+             (exact-rotate-bit-field bitwise-rotate-bit-field)
+             (exact-reverse-bit-field bitwise-reverse-bit-field)) )
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl arithmetic-util)
+                 (yuni scheme refimpl arithmetic impl contagion-ex)
+                 (yuni scheme refimpl arithmetic impl nary)
+                 (yuni scheme refimpl arithmetic impl integer)
+                 (yuni scheme refimpl arithmetic impl fixnum)
+                 (yuni scheme refimpl arithmetic impl flonum)
+                 (yuni scheme refimpl arithmetic impl bignum)
+                 (yuni scheme refimpl arithmetic impl bigbit)
+                 (yuni scheme refimpl arithmetic impl ratnum)
+                 (yuni scheme refimpl arithmetic impl recnum))
+
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -17,9 +54,11 @@
       (bignum? obj)
       (ratnum? obj)))
 
+#| dupe?
 (define (exact-integer? obj)
   (or (fixnum? obj)
       (bignum? obj)))
+|#
 
 (define-syntax define-binary
   (syntax-rules ()
@@ -629,3 +668,4 @@
              (k width (exact- k (core->integer 1))))
             ((exact-zero? k)
              (exact-copy-bit-field n start end reversed))))))
+)

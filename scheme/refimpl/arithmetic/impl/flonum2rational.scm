@@ -1,3 +1,15 @@
+(library (yuni scheme refimpl arithmetic impl flonum2rational)
+         (export flonum->integer
+                 flonum->rational
+                 )
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl integer)
+                 (yuni scheme refimpl arithmetic impl flonum)
+                 (yuni scheme refimpl arithmetic impl flonum-ieee)
+                 (yuni scheme refimpl arithmetic impl rational)
+                 (yuni scheme refimpl arithmetic impl ratnum)
+                 )
+
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -22,3 +34,4 @@
     (if (not (integer-zero? (flsign f)))
 	(rational- (core->integer 0) q)
 	q)))
+)

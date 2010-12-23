@@ -1,3 +1,13 @@
+(library (yuni scheme refimpl arithmetic impl bellerophon)
+         (export bellerophon)
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl integer)
+                 (yuni scheme refimpl arithmetic impl flonum)
+                 (yuni scheme refimpl arithmetic impl rational2flonum)
+                 (yuni scheme refimpl arithmetic impl flonum2rational)
+                 (yuni scheme refimpl arithmetic impl flonum-ieee)
+                 )
+
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -403,3 +413,4 @@
 (set! ten^216  (list (core->integer 13377742608693866209) (core->integer 654)))
 
 ; eof
+)

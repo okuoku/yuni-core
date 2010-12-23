@@ -1,3 +1,10 @@
+(library (yuni scheme refimpl arithmetic impl nary)
+         (export
+           make-transitive-pred
+           reduce
+           make-min/max)
+         (import (yuni scheme refimpl arithmetic backend))
+
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -32,4 +39,4 @@
        ((null? args) m)
        ((comp (car args) m) (loop (car args) (cdr args)))
        (else (loop m (cdr args)))))))
-
+)

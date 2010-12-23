@@ -1,3 +1,87 @@
+(library (yuni scheme refimpl arithmetic impl fixnum)
+         (export least-fixnum
+                 greatest-fixnum
+                 core->fixnum
+                 fixnum->core
+                 fixnum*
+                 fixnum-zero?
+                 fixnum<?
+                 fixnum-quotient+remainder
+                 fixnum+
+                 fixnum-negative?
+                 fixnum-
+                 fixnum-positive?
+                 fixnum-min
+                 fixnum=?
+                 fixnum-remainder
+                 fixnum-quotient
+                 fixnum-arithmetic-shift-left
+                 fixnum>=?
+                 fixnum<=?
+                 fixnum-even?
+                 fixnum-odd?
+                 fixnum-first-bit-set
+                 fixnum-length
+                 fixnum-bit-count
+                 fixnum?
+                 fixnum-ior
+                 fixnum-arithmetic-shift
+                 fixnum-and
+                 fixnum>?
+                 fixnum-not
+                 fixnum-xor
+                 fx
+                 fixnum-max
+                 fxdiv0
+                 fxmod0
+                 fixnum-bit-set?
+                 fixnum-arithmetic-shift-right
+                 fx=?
+                 fx>?
+                 fx<?
+                 fx>=?
+                 fx<=?
+                 fxzero?
+                 fxpositive?
+                 fxnegative?
+                 fxodd?
+                 fxeven?
+                 fxmax
+                 fxmin
+                 fx+
+                 fx-
+                 fx*
+                 (rename 
+                   (fixnum+/carry fx+/carry)
+                   (fixnum-/carry fx-/carry)
+                   (fixnum*/carry fx*/carry)
+                   (fxdiv0+mod0 fxdiv0-and-mod0)
+                   (fxdiv+mod fxdiv-and-mod))
+                 fxdiv
+                 fxmod
+                 fxnot
+                 fxand
+                 fxior
+                 fxxor
+                 fxif
+                 fxbit-count
+                 fxlength
+                 fxfirst-bit-set
+                 fxbit-set?
+                 fxcopy-bit
+                 fxbit-field
+                 fxcopy-bit-field
+                 fxrotate-bit-field
+                 fxreverse-bit-field
+                 fxarithmetic-shift
+                 fxarithmetic-shift-left
+                 fxarithmetic-shift-right
+                 )
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl nary)
+                 (yuni scheme refimpl arithmetic impl custom)
+                 (yuni scheme refimpl arithmetic impl bitwise))
+
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -47,6 +131,25 @@
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; ported to (yuni core):
+
+(define* :fixnum
+  (representative))
+
+(define (really-make-fixnum-record x)
+  (make :fixnum
+        (representative x)))
+
+(define (fixnum-record? x)
+  (is-a? x :fixnum))
+
+(define (fixnum-record-rep x)
+  (let-with x (representative)
+    representative))
+
+
+
+#|
 ; SRFI 9
 ;
 ; This defines :fixnum to be a record type with
@@ -66,6 +169,7 @@
 (define-record-discloser :fixnum
   (lambda (r)
     (list 'fixnum (fixnum-record-rep r))))
+|#
 
 ; Here are the definitions that matter.
 
@@ -762,3 +866,4 @@
              n start end)
       (fixnum-reverse-bit-field n start end)))
 
+)

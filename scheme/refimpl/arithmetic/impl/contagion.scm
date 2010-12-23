@@ -1,3 +1,16 @@
+(library (yuni scheme refimpl arithmetic impl contagion)
+         (export define-contagion
+                 do-contagion
+                 make-contagion-matrix
+                 )
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl fixnum)
+                 (yuni scheme refimpl arithmetic impl bignum)
+                 (yuni scheme refimpl arithmetic impl ratnum)
+                 (yuni scheme refimpl arithmetic impl recnum)
+                 (yuni scheme refimpl arithmetic impl flonum)
+                 (yuni scheme refimpl arithmetic impl compnum)
+                 )
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -72,28 +85,32 @@
   (syntax-rules (symmetric)
 
     ((define-contagion ?matrix ?type1 ?type2 ?f symmetric)
-     (let* ((f ?f)
-	    (f-inv (lambda (a b retry)
-		     (f b a retry))))
-       (vector-set! (vector-ref ?matrix (numtype-enum ?type1))
-		    (numtype-enum ?type2)
-		    f)
-       (vector-set! (vector-ref ?matrix (numtype-enum ?type2))
-		    (numtype-enum ?type1)
-		    f-inv)))
+     (define bogus
+       (let* ((f ?f)
+              (f-inv (lambda (a b retry)
+                       (f b a retry))))
+         (vector-set! (vector-ref ?matrix (numtype-enum ?type1))
+                      (numtype-enum ?type2)
+                      f)
+         (vector-set! (vector-ref ?matrix (numtype-enum ?type2))
+                      (numtype-enum ?type1)
+                      f-inv))))
 
 
     ((define-contagion ?matrix ?type1 ?type2 ?coerce1 ?coerce2)
-     (let ((coerce1 ?coerce1)
-	   (coerce2 ?coerce2))
-       (vector-set! (vector-ref ?matrix (numtype-enum ?type1))
-		    (numtype-enum ?type2)
-		    (fun ?coerce1 ?coerce2))
-       (vector-set! (vector-ref ?matrix (numtype-enum ?type2))
-		    (numtype-enum ?type1)
-		    (fun ?coerce2 ?coerce1))))
+     (define bogus
+       (let ((coerce1 ?coerce1)
+             (coerce2 ?coerce2))
+         (vector-set! (vector-ref ?matrix (numtype-enum ?type1))
+                      (numtype-enum ?type2)
+                      (fun ?coerce1 ?coerce2))
+         (vector-set! (vector-ref ?matrix (numtype-enum ?type2))
+                      (numtype-enum ?type1)
+                      (fun ?coerce2 ?coerce1)))))
 
     ((define-contagion ?matrix ?type1 ?type2 ?f)
+     (define bogus
        (vector-set! (vector-ref ?matrix (numtype-enum ?type1))
-		    (numtype-enum ?type2)
-		    ?f))))
+                    (numtype-enum ?type2)
+                    ?f)))))
+)

@@ -1,3 +1,12 @@
+(library (yuni scheme refimpl arithmetic impl custom)
+         (export
+           *width*
+           *fixnums-are-records*
+           *flonums-are-records*
+           define-record-discloser)
+         (import
+           (yuni scheme refimpl arithmetic backend))
+
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -50,3 +59,4 @@
 
 (define (define-record-discloser . args) #f)
 
+)

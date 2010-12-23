@@ -1,3 +1,18 @@
+(library (yuni scheme refimpl arithmetic impl flonum-ieee)
+         (export fl-ieee-min-exponent
+                 fl-ieee-mantissa-width
+                 fl-ieee-min-exponent/denormalized
+                 flsign
+                 flexponent
+                 flsignificand
+                 fl-ieee-max-exponent
+                 )
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl nary)
+                 (yuni scheme refimpl arithmetic impl custom)
+                 (yuni scheme refimpl arithmetic impl flonum)
+                 (yuni scheme refimpl arithmetic impl integer)
+                 )
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -58,3 +73,4 @@
 (define (flexponent x)
   (core->integer (core-exponent (flonum->core x))))
 
+)

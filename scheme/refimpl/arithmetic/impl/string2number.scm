@@ -1,3 +1,19 @@
+(library (yuni scheme refimpl arithmetic impl string2number)
+         (export string->number)
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl fixnum)
+                 (yuni scheme refimpl arithmetic impl flonum)
+                 (yuni scheme refimpl arithmetic impl bignum)
+                 (yuni scheme refimpl arithmetic impl ratnum)
+                 (yuni scheme refimpl arithmetic impl rational2flonum)
+                 (yuni scheme refimpl arithmetic impl flonum2rational)
+                 (yuni scheme refimpl arithmetic impl recnum)
+                 (yuni scheme refimpl arithmetic impl compnum)
+                 (yuni scheme refimpl arithmetic impl integer)
+                 (yuni scheme refimpl arithmetic impl coercion)
+                 (yuni scheme refimpl arithmetic impl generic)
+                 (yuni scheme refimpl arithmetic impl bellerophon)
+                 )
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -537,3 +553,4 @@
 		  #t)))))
 
 ; eof
+)

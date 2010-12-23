@@ -1,3 +1,32 @@
+(library (yuni scheme refimpl arithmetic impl coercion)
+         (export bignum->flonum
+                 recnum->compnum
+                 compnum->recnum
+                 ratnum->flonum
+                 compnum->bignum
+                 bignum->compnum
+                 flonum->compnum
+                 flonum->recnum
+                 flonum->bignum
+                 ratnum->compnum
+                 ratnum->recnum
+                 bignum->recnum
+                 bignum->ratnum
+                 fixnum->compnum
+                 fixnum->recnum
+                 fixnum->ratnum
+                 compnum-integral?
+                 compnum-float?
+                 )
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl flonum)
+                 (yuni scheme refimpl arithmetic impl compnum)
+                 (yuni scheme refimpl arithmetic impl ratnum)
+                 (yuni scheme refimpl arithmetic impl recnum)
+                 (yuni scheme refimpl arithmetic impl integer)
+                 (yuni scheme refimpl arithmetic impl rational2flonum)
+                 (yuni scheme refimpl arithmetic impl flonum2rational)
+                 )
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -61,9 +90,11 @@
 (define (compnum-float? f)
   (flzero? (compnum-imag f)))
 
+#| dupe??
 (define (exact-integer? obj)
   (or (fixnum? obj)
       (bignum? obj)))
+|#
 
 (define (compnum-integral? f)
   (and (compnum-float? f)
@@ -76,3 +107,4 @@
 (define (id x) x)
 
 ; eof
+)

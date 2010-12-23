@@ -1,3 +1,15 @@
+(library (yuni scheme refimpl arithmetic impl number2string)
+         (export number->string)
+         (import (yuni scheme refimpl arithmetic backend)
+                 (yuni scheme refimpl arithmetic impl fixnum)
+                 (yuni scheme refimpl arithmetic impl bignum)
+                 (yuni scheme refimpl arithmetic impl flonum)
+                 (yuni scheme refimpl arithmetic impl flonum2string)
+                 (yuni scheme refimpl arithmetic impl compnum)
+                 (yuni scheme refimpl arithmetic impl ratnum)
+                 (yuni scheme refimpl arithmetic impl recnum)
+                 (yuni scheme refimpl arithmetic impl integer))
+
 ; This file is part of the reference implementation of the R6RS Arithmetic SRFI.
 ; See file COPYING.
 
@@ -34,3 +46,4 @@
 	(else
 	 (error "number->string: not a number: " x)
 	 #t)))
+)
