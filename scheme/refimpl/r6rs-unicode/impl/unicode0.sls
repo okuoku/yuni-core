@@ -19,15 +19,14 @@
 ; This file does not rely on any lexical syntax for
 ; non-Ascii characters and strings.
 
-(library (local unicode0)
+(library (yuni scheme refimpl r6rs-unicode impl unicode0)
   (export
 
     binary-search-of-vector
     binary-search
     binary-search-16bit)
 
-  (import (rnrs base)
-          (rnrs bytevectors))
+  (import (yuni scheme refimpl r6rs-unicode backend))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;

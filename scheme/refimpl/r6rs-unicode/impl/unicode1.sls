@@ -21,7 +21,7 @@
 ; This file does not rely on any lexical syntax for
 ; non-Ascii characters and strings.
 
-(library (local unicode1)
+(library (yuni scheme refimpl r6rs-unicode impl unicode1)
   (export
 
     char-upcase
@@ -43,11 +43,9 @@
     char-lower-case?
     char-title-case?)
 
-  (import (rnrs base)
-          (rnrs control)
-          (rnrs bytevectors)
-          (rnrs lists)
-          (local unicode0))
+  (import 
+    (yuni scheme refimpl r6rs-unicode backend)
+    (yuni scheme refimpl r6rs-unicode impl unicode0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;

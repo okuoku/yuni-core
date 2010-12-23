@@ -244,32 +244,6 @@
            make-i/o-decoding-error i/o-decoding-error?  &i/o-encoding make-i/o-encoding-error i/o-encoding-error?  i/o-encoding-error-char
            &no-infinities make-no-infinities-violation no-infinities-violation?  &no-nans make-no-nans-violation no-nans-violation?
 
-           ; deprecated 
-
-           #|
-           &condition-rtd &condition-rcd &message-rtd &message-rcd
-           &warning-rtd &warning-rcd &serious-rtd &serious-rcd
-           &error-rtd &error-rcd &violation-rtd &violation-rcd
-           &assertion-rtd &assertion-rcd &irritants-rtd
-           &irritants-rcd &who-rtd &who-rcd &non-continuable-rtd
-           &non-continuable-rcd &implementation-restriction-rtd
-           &implementation-restriction-rcd &lexical-rtd &lexical-rcd
-           &syntax-rtd &syntax-rcd &undefined-rtd &undefined-rcd
-
-           &i/o-rtd &i/o-rcd &i/o-read-rtd &i/o-read-rcd
-           &i/o-write-rtd &i/o-write-rcd &i/o-invalid-position-rtd
-           &i/o-invalid-position-rcd &i/o-filename-rtd
-           &i/o-filename-rcd &i/o-file-protection-rtd
-           &i/o-file-protection-rcd &i/o-file-is-read-only-rtd
-           &i/o-file-is-read-only-rcd &i/o-file-already-exists-rtd
-           &i/o-file-already-exists-rcd &i/o-file-does-not-exist-rtd
-           &i/o-file-does-not-exist-rcd &i/o-port-rtd &i/o-port-rcd
-           &i/o-decoding-rtd &i/o-decoding-rcd &i/o-encoding-rtd
-           &i/o-encoding-rcd &no-infinities-rtd &no-infinities-rcd
-           &no-nans-rtd &no-nans-rcd
-           |#
-
-           ;
            define-condition-type
 
            ;; from (rnrs base)
@@ -353,64 +327,25 @@
                         ;; implemented in (yuni scheme refimpl arithmetic r6rs base)
                         * + - / < <= = > >=
                         abs acos asin atan cos
-                        ceiling
-                        complex?
-                        denominator
-                        exp expt floor
+                        ceiling complex?  denominator exp expt floor
                         gcd imag-part inexact? integer?
-                        lcm log magnitude
-                        make-polar make-rectangular
-                        max min
-                        negative?
-                        number? numerator
-                        odd?
-                        number->string
-                        string->number
-                        positive?
-                        rational?
-                        rationalize
-                        real-part
-                        real?
-                        round
-                        sin
-                        sqrt
-                        tan
-                        truncate
-                        zero?
-                        real-valued?
-                        rational-valued?
-                        integer-valued?
-                        exact
-                        inexact
-                        finite?
-                        infinite?
-                        nan?
-                        div
-                        mod
-                        div-and-mod
-                        div0
-                        mod0
-                        div0-and-mod0
-                        exact-integer-sqrt
+                        lcm log magnitude make-polar make-rectangular
+                        max min negative?
+                        number? numerator odd?  number->string string->number
+                        positive?  rational?  rationalize real-part
+                        real?  round sin sqrt tan truncate zero?
+                        real-valued?  rational-valued?  integer-valued?
+                        exact inexact finite?  infinite?  nan?  div
+                        mod div-and-mod div0 mod0
+                        div0-and-mod0 exact-integer-sqrt
                         angle
 
                         ;; implemented in (yuni scheme refimpl arithmetic r6rs bitwise)
-                        bitwise-not
-                        bitwise-and
-                        bitwise-ior
-                        bitwise-xor
-                        bitwise-if
-                        bitwise-bit-count
-                        bitwise-length
-                        bitwise-first-bit-set
-                        bitwise-bit-set?
-                        bitwise-copy-bit
-                        bitwise-bit-field
-                        bitwise-copy-bit-field
-                        bitwise-rotate-bit-field
-                        bitwise-reverse-bit-field
-                        bitwise-arithmetic-shift
-                        bitwise-arithmetic-shift-left
+                        bitwise-not bitwise-and bitwise-ior bitwise-xor bitwise-if
+                        bitwise-bit-count bitwise-length bitwise-first-bit-set
+                        bitwise-bit-set?  bitwise-copy-bit bitwise-bit-field
+                        bitwise-copy-bit-field bitwise-rotate-bit-field bitwise-reverse-bit-field
+                        bitwise-arithmetic-shift bitwise-arithmetic-shift-left
                         bitwise-arithmetic-shift-right
 
                         ;; implemented in (yuni scheme refimpl arithmetic r6rs fixnums)
@@ -453,6 +388,42 @@
 
                         ;; implemented in (yuni scheme refimpl r6rs-reader impl reader)
                         get-datum
+
+                        ;; implemented in (yuni scheme refimpl r6rs-unicode impl unicode)
+                        char-upcase
+                        char-downcase
+                        char-titlecase
+                        char-foldcase
+
+                        char-ci=?
+                        char-ci<?
+                        char-ci>?
+                        char-ci<=?
+                        char-ci>=?
+
+                        char-general-category
+                        char-alphabetic?
+                        char-numeric?
+                        char-whitespace?
+                        char-upper-case?
+                        char-lower-case?
+                        char-title-case?
+
+                        string-upcase
+                        string-downcase
+                        string-titlecase
+                        string-foldcase
+
+                        string-ci=?
+                        string-ci<?
+                        string-ci>?
+                        string-ci<=?
+                        string-ci>=?
+
+                        string-normalize-nfd
+                        string-normalize-nfkd
+                        string-normalize-nfc
+                        string-normalize-nfkc
                         ) run expand)
            (for (yuni scheme refimpl arithmetic r6rs base) run expand)
            (for (yuni scheme r6rs arithmetic bitwise) run expand)
@@ -460,4 +431,5 @@
            (for (yuni scheme r6rs arithmetic flonums) run expand)
            (for (yuni scheme misc io) run expand)
            (for (yuni scheme refimpl r6rs-reader impl reader) run expand)
+           (for (yuni scheme refimpl r6rs-unicode impl unicode) run expand)
            )) ;; rnrs

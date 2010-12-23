@@ -23,7 +23,7 @@
 ; This file does not rely on any lexical syntax for
 ; non-Ascii characters and strings.
 
-(library (local unicode3)
+(library (yuni scheme refimpl r6rs-unicode impl unicode3)
   (export
 
     string-upcase
@@ -37,13 +37,11 @@
     string-ci<=?
     string-ci>=?)
 
-  (import (rnrs base)
-          (rnrs control)
-          (rnrs bytevectors)
-          (rnrs mutable-strings)
-          (local unicode0)
-          (local unicode1)
-          (local unicode2))
+  (import 
+    (yuni scheme refimpl r6rs-unicode impl unicode0)
+    (yuni scheme refimpl r6rs-unicode impl unicode1)
+    (yuni scheme refimpl r6rs-unicode impl unicode2)
+    (yuni scheme refimpl r6rs-unicode backend))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;

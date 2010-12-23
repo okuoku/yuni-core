@@ -18,7 +18,7 @@
 ; notice is different from the others, and the others are in
 ; separate files to impose some modularity upon this library.
 
-(library (local unicode)
+(library (yuni scheme refimpl r6rs-unicode impl unicode)
   (export
 
     char-upcase
@@ -57,13 +57,16 @@
     string-normalize-nfkc)
 
   (import ;(local unicode0)
-           (local unicode1)
+           (yuni scheme refimpl r6rs-unicode impl unicode1)
           ;(local unicode2)
-           (local unicode3)
-           (local unicode4)
-           (rnrs io simple))
+           (yuni scheme refimpl r6rs-unicode impl unicode3)
+           (yuni scheme refimpl r6rs-unicode impl unicode4)
+           ;(rnrs io simple)
+           )
 
+#|
   (display "Using reference implementation of (rnrs unicode).")
   (newline)
+|#
 
 )

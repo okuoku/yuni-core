@@ -22,17 +22,16 @@
 ; This file does not rely on any lexical syntax for
 ; non-Ascii characters and strings.
 
-(library (local unicode2)
+(library (yuni scheme refimpl r6rs-unicode impl unicode2)
   (export
 
     string-next-word-break
     string-previous-word-break)
 
-  (import (rnrs base)
-          (rnrs bytevectors)
-          (rnrs lists)
-          (local unicode0)
-          (local unicode1))
+  (import 
+    (yuni scheme refimpl r6rs-unicode backend)
+    (yuni scheme refimpl r6rs-unicode impl unicode0)
+    (yuni scheme refimpl r6rs-unicode impl unicode1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;

@@ -65,7 +65,7 @@
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(library (local unicode4)
+(library (yuni scheme refimpl r6rs-unicode impl unicode4)
 
   (export
 
@@ -74,13 +74,12 @@
     string-normalize-nfc
     string-normalize-nfkc)
 
-  (import (rnrs base)
-          (rnrs bytevectors)
-          (rnrs mutable-strings)
-          (local unicode0)
-          (local unicode1)
-          (local unicode2)
-          (local unicode3))
+  (import 
+    (yuni scheme refimpl r6rs-unicode impl unicode0)
+    (yuni scheme refimpl r6rs-unicode impl unicode1)
+    (yuni scheme refimpl r6rs-unicode impl unicode2)
+    (yuni scheme refimpl r6rs-unicode impl unicode3)
+    (yuni scheme refimpl r6rs-unicode backend))
 
 ; Normalization Form D (NFD): Canonical Decomposition
 
