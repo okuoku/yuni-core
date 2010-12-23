@@ -22,7 +22,6 @@
            pair?
            memq
            values
-           error
            call-with-values
 
            vector
@@ -49,7 +48,12 @@
            display
            write
            newline
+
+           ;; error
+           error
            (rename 
+             ;; error
+             (error r6rs-error)
              ;; predicates
              (eqv? core:eqv?)
              (number? core:number?)
@@ -115,6 +119,9 @@
              ))
          (import 
            (for (yuni core) run expand)
-           (for (rnrs) run expand)
+           (for (except (rnrs) error) run expand)
            (for (rnrs r5rs) run expand))
+(define (error . x)
+  (assertion-violation 'error "error" x))
+
 )

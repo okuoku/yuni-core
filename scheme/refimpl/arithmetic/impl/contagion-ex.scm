@@ -28,6 +28,24 @@
 
 (define cmatrix (make-contagion-matrix))
 
+(define contagion/ex (lambda (a b retry)
+		       (do-contagion cmatrix a b retry)))
+
+(define econtagion/ex (lambda (a b retry)
+			(do-contagion ematrix a b retry)))
+
+(define pcontagion/ex (lambda (a b retry)
+			(do-contagion pmatrix a b retry)))
+
+; Predicate matrix: for <, <=, >, >=
+
+(define pmatrix (make-contagion-matrix))
+
+; Equality matrix: for = (only)
+
+; #### I think this is identical with pmatrix
+(define ematrix (make-contagion-matrix))
+
 (define-contagion cmatrix fix fix fixnum->bignum fixnum->bignum)
 (define-contagion cmatrix fix big fixnum->bignum id)
 (define-contagion cmatrix fix rat fixnum->ratnum id)
@@ -55,9 +73,6 @@
 
 (define-contagion cmatrix comp comp no)
 
-; Predicate matrix: for <, <=, >, >=
-
-(define pmatrix (make-contagion-matrix))
 
 (define-contagion pmatrix fix fix oops)
 (define-contagion pmatrix fix big fixnum->bignum id)
@@ -86,10 +101,6 @@
 
 (define-contagion pmatrix comp comp no)
 
-; Equality matrix: for = (only)
-
-; #### I think this is identical with pmatrix
-(define ematrix (make-contagion-matrix))
 
 (define-contagion ematrix fix fix oops)
 (define-contagion ematrix fix big fixnum->bignum id)
@@ -118,13 +129,5 @@
 
 (define-contagion ematrix comp comp no)
 
-(define contagion/ex (lambda (a b retry)
-		       (do-contagion cmatrix a b retry)))
-
-(define econtagion/ex (lambda (a b retry)
-			(do-contagion ematrix a b retry)))
-
-(define pcontagion/ex (lambda (a b retry)
-			(do-contagion pmatrix a b retry)))
 
 )

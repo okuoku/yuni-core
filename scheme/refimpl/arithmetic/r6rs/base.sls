@@ -17,6 +17,7 @@
            number? numerator
            odd?
            number->string
+           string->number
            positive?
            rational?
            rationalize
@@ -46,6 +47,7 @@
            angle )
          (import 
            (yuni scheme refimpl arithmetic impl number2string)
+           (yuni scheme refimpl arithmetic impl string2number)
            (yuni scheme refimpl arithmetic impl generic-ex)
            (yuni scheme refimpl arithmetic impl generic)))
 

@@ -119,6 +119,23 @@
 
 (define cmatrix (make-contagion-matrix))
 
+; Predicate matrix: for <, <=, >, >=
+; Algorithm*p handles illegal complex numbers.
+
+(define pmatrix (make-contagion-matrix))
+
+; Equality matrix: for = (only)
+
+(define ematrix (make-contagion-matrix))
+
+(define contagion/will (lambda (a b retry)
+			 (do-contagion cmatrix a b retry)))
+
+(define econtagion/will (lambda (a b retry)
+			  (do-contagion ematrix a b retry)))
+
+(define pcontagion/will (lambda (a b retry)
+			  (do-contagion pmatrix a b retry)))
 (define-contagion cmatrix fix fix fixnum->bignum fixnum->bignum) ; $$$
 (define-contagion cmatrix fix big fixnum->bignum id)
 (define-contagion cmatrix fix rat fixnum->ratnum id)
@@ -171,10 +188,6 @@
 (define-contagion cmatrix comp comp oops)
 
 
-; Predicate matrix: for <, <=, >, >=
-; Algorithm*p handles illegal complex numbers.
-
-(define pmatrix (make-contagion-matrix))
 
 (define-contagion pmatrix fix fix fixnum->bignum fixnum->bignum) ; $$$
 (define-contagion pmatrix fix big fixnum->bignum id)
@@ -221,9 +234,6 @@
 		    compnum-real bignum->flonum))
 (define-contagion pmatrix comp comp oops)
 
-; Equality matrix: for = (only)
-
-(define ematrix (make-contagion-matrix))
 
 (define-contagion ematrix fix fix fixnum->bignum fixnum->bignum) ; $$$
 (define-contagion ematrix fix big fixnum->bignum id)
@@ -288,13 +298,5 @@
 		      id recnum->compnum))
 (define-contagion ematrix comp comp oops)
 
-(define contagion/will (lambda (a b retry)
-			 (do-contagion cmatrix a b retry)))
-
-(define econtagion/will (lambda (a b retry)
-			  (do-contagion ematrix a b retry)))
-
-(define pcontagion/will (lambda (a b retry)
-			  (do-contagion pmatrix a b retry)))
 
 )
