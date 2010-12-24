@@ -442,7 +442,48 @@
                         enum-set-projection
                         define-enumeration
 
+                        ;; implemented in (yuni scheme core-syntax derived)
+                        let*
+                        cond
+                        case
+                        else
+                        =>
+
+                        ;; implemented in (yuni scheme core-syntax identifier-syntax)
+                        identifier-syntax
+
+                        ;; implemented in (yuni scheme core-syntax let-values)
+                        let-values
+                        let*-values
+
+                        ;; implemented in (yuni scheme core-syntax let)
+                        letrec*
+
+                        ;; implemented in (yuni scheme core-syntax quasiquote)
+                        quasiquote
+                        unquote
+                        unquote-splicing
+
+                        ;; implemented in (yuni scheme core-syntax quasisyntax)
+                        quasisyntax
+                        unsyntax
+                        unsyntax-splicing
+
+                        ;; implemented in (yuni scheme core-syntax syntax-rules)
+                        syntax-rules
+
+                        ;; implemented in (yuni scheme core-syntax with-syntax)
+                        with-syntax
+
                         ) run expand)
+           (for (yuni scheme core-syntax with-syntax) run expand)
+           (for (yuni scheme core-syntax syntax-rules) run expand)
+           (for (yuni scheme core-syntax quasisyntax) run expand)
+           (for (yuni scheme core-syntax quasiquote) run expand)
+           (for (yuni scheme core-syntax let) run expand)
+           (for (yuni scheme core-syntax let-values) run expand)
+           (for (yuni scheme core-syntax identifier-syntax) run expand)
+           (for (yuni scheme core-syntax derived) run expand)
            (for (yuni scheme refimpl arithmetic r6rs base) run expand)
            (for (yuni scheme r6rs arithmetic bitwise) run expand)
            (for (yuni scheme r6rs arithmetic fixnums) run expand)
