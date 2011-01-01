@@ -2,7 +2,7 @@
 ;; Copyright 2009 Derick Eddington.  My MIT-style license is in the file named
 ;; LICENSE from the original collection this file is distributed with.
 
-(library (wak ssax private misc)
+(library (yuni lib ssax private misc)
   (export
     inc dec
     ascii->char ucscode->char
