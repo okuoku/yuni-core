@@ -168,7 +168,7 @@
 (test-char alphanum "0" "." "letter or digit")
 (test-char digit    "0" "." "digit")
 (test-char hexdigit "f" "." "hexadecimal digit")
-(test-char newline  "\n" "." "newline")
+(test-char lf "\n" "." "newline")
 (test-char tab      "\t" "." "tab")
 (test-char space    "\t" "." "space")
 
