@@ -31,14 +31,28 @@
 ;;;   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;
 
+#|
 (use gauche.test)
 (use srfi-1)
+|#
 
-(test-start "parser.peg")
+(import (rnrs) 
+        (only (srfi :1) every)
+        (srfi :26)
+        (srfi :8)
+        (mosh test)
+        (yuni util binding-constructs)
+        (yuni text peg))
+
+;(test-start "parser.peg")
+
+(define (test-section x) #f)
 
 (test-section "peg")
+#|
 (use parser.peg)
 (test-module 'parser.peg)
+|#
 
 ;;;============================================================
 ;;; helper macros
@@ -48,12 +62,20 @@
     (and (test-type o)
          (every equal? e (map (cut <> o) accessors)))))
 
+#|
 (define-syntax test-succ
   (syntax-rules ()
     ((_ label expect parse input)
      (test* #`",label (success)" expect
-            (peg-parse-string parse input)))))
+            (parse-string parse input)))))
+|#
+(define-syntax test-succ
+  (syntax-rules ()
+    ((_ label expect parse input)
+     (test-equal expect
+                 (parse-string parse input)))))
 
+#|
 (define-syntax test-fail
   (syntax-rules ()
     ((_ label expect parse input)
@@ -63,10 +85,17 @@
                       (else e))
               (peg-parse-string parse input)
               (error "test-fail failed"))))))
+|#
+
+(define-syntax test-fail
+  (syntax-rules ()
+    ((_ label expect parse input)
+     (test-error parse-error? (parse-string parse input)))))
 
 ;;;============================================================
 ;;; Ropes
 ;;;
+#|
 (receive (make-rope rope->string)
     (with-module parser.peg (values make-rope rope->string))
   (let* ((rope1 (make-rope "abc"))
@@ -75,6 +104,7 @@
     (test* "rope->string" "abc"        (rope->string rope1))
     (test* "rope->string" "012abcX"    (rope->string rope2))
     (test* "rope->string" (test-error) (rope->string rope3))))
+|#
 
 
 ;;;============================================================
@@ -111,10 +141,12 @@
 (test-fail "$string)" '(0 "ABC") ($string "ABC") "012")
 (test-succ "$char" #\a ($char #\a) "abc")
 (test-fail "$char" '(0 #\a) ($char #\a) "012")
+#|
 (test-succ "$one-of" #\j ($one-of #[a-z]) "j")
 (test-fail "$one-of" '(0 #[A-Z]) ($one-of #[A-Z]) "j")
 (test-succ "$none-of" #\j ($none-of #[A-Z]) "j")
 (test-fail "$none-of" '(0 #[^a-z]) ($none-of #[a-z]) "j")
+|#
 (test-succ "$string-ci" "aBC" ($string-ci "abc") "aBCdef")
 (test-fail "$string-ci" '(0 "abc") ($string-ci "abc") "012")
 
@@ -177,6 +209,7 @@
            ($or ($string "foo") ($string "bar"))
            "012345")
 
+#|
 ;; $try
 (test-succ "$try" "foo"
            ($try ($string "foo"))
@@ -190,6 +223,7 @@
 (test-fail "$try" '(0 "bar")
            ($try ($seq ($string "foo") ($string "bar")))
            "foobaz...")
+|#
 
 ;; $do
 (test-succ "$do" "j"
@@ -235,11 +269,14 @@
                 ($return (list x y z)))
            "ABcdEF")
 
+#|
 (test-fail "$do and $or" '(3 "foo")
            ($do (v ($or ($string "foo") ($string "bar")))
                 ($string (rope-finalize v)))
            "foobar")
+|#
 
+#|
 ;; $fold-parsers and $fold-parsers-right
 (test-succ "$fold-parsers" '()                  ; base case
            ($fold-parsers cons '() '())
@@ -260,6 +297,7 @@
 (test-fail "$fold-parsers-right" '(2 #\c)
            ($fold-parsers-right cons '() (list ($char #\a) ($char #\b) ($char #\c)))
            "abd")
+|#
 
 ;; $seq
 (test-succ "$seq" "b"
@@ -284,11 +322,13 @@
 (test-succ "$many" '("a" "a")
            ($many ($string "a") 1 2) "aaaaa")
 
+#|
 ;; $skip-many
 (test-succ "$skip-many" #\a
            ($seq ($skip-many ($string "a") 1 2) ($one-of #[a-z])) "aaaaa")
 (test-succ "$skip-many" #\b
            ($seq ($skip-many ($string "a")) ($one-of #[a-z])) "baaaaa")
+|#
 
 ;; $repeat
 (test-succ "$repeat" '(#\a #\b #\a)
@@ -305,6 +345,7 @@
            ($optional ($seq ($char #\a) ($char #\b)))
            "ac")
 
+#|
 ;; $sep-by
 (test-succ "$sep-by" '(#\a #\b)
            ($sep-by ($one-of #[ab]) ($string ","))
@@ -321,13 +362,17 @@
 (test-fail "$sep-by" '(2 #[abc])
            ($sep-by ($one-of #[abc]) ($string ",") 2 3)
            "a,2,3")
+|#
 
+#|
 ;; $end-by
 (test-succ "$end-by" '(#\a #\b)
            ($end-by ($one-of #[a-z]) ($string ","))
            "a,b,")
+|#
 
 ;; $sep-end-by
+#|
 (let ((p ($sep-end-by ($seq ($one-of #[a-z]) ($one-of #[a-z])) ($string ","))))
   (define (succ in exp) (test-succ "$sep-end-by" exp p in))
   (define (fail in exp) (test-fail "$sep-end-by" exp p in))
@@ -362,13 +407,16 @@
                           ($string ",") 3)
              "aa,bb,")
   )
+|#
 
+#|
 ;; $count
 (test-succ "$count" '(#\a #\b)
            ($count ($one-of #[ab]) 2) "abab")
 
 (test-fail "$count" '(1 #[ab])
            ($count ($one-of #[ab]) 2) "a012")
+|#
 
 ;; $between
 (test-succ "$between" "foo"
@@ -383,6 +431,7 @@
                      ($string ")"))
            "(foo]")
 
+#|
 ;; $not
 (test-succ "$not" #f
            ($not ($one-of #[a-z]))
@@ -390,12 +439,14 @@
 (test-fail "$not" '(0 #\a)
            ($not ($one-of #[a-z]))
            "abc")
+|#
 
 ;; $many-till
 (test-succ "$many-till" '(#\a #\b)
            ($many-till alphanum digit)
            "ab78")
 
+#|
 ;; $many-chars
 (test-succ "$many-chars" '(#\c #\b #\a)
            ($many-chars #[a-c])
@@ -412,6 +463,7 @@
 (test-succ "$many-chars" '(#\c #\b)
            ($many-chars #[a-c] 0 2)
            "cbad")
+|#
 
 ;; $chain-left
 (let ((integer
@@ -456,6 +508,7 @@
 ;;;============================================================
 ;;; Backtrack control
 ;;;
+#|
 (test-section "backtrack control")
 
 (test-succ "$or and $try" "abc"
@@ -478,6 +531,7 @@
   (test-fail "$or and $try" '(4 "foo") parser
              "abc+efg")
   )
+|#
 
 ;;;============================================================
 ;;; Token Parsers
@@ -494,6 +548,7 @@
 
 ;; In the manual
 
+#|
 (let ()
   (define integer   ($many1 ($one-of #[\d])))
   (define ws        ($skip-many ($one-of #[\s])))
@@ -512,6 +567,7 @@
   (test-succ "int-list0" #\] int-list0 "[123 456 789]")
   (test-succ "int-list" '(123 456 789) int-list "[123 456 789]")
   )
+|#
 
 ;; Count the maximal nesting level
 (letrec ((nesting
@@ -527,6 +583,7 @@
   (test-fail "nesting parenthesis" '(3 #\) ) nesting "((("))
 
 ;; number parser (1) - simple
+#|
 (let* ((sign?    ($optional ($one-of #[-+])))
        (digits   ($seq sign? ($many-chars #[\d] 1)))
        (point    ($seq ($char #\.) ($many ($one-of #[\d]) 1)))
@@ -551,8 +608,10 @@
   (%test "-3.0e+53")
   (%test "-3.0e+" '(6 #[0-9]))
   )
+|#
 
 ;; CSV parser
+#|
 (let ()
   (define ws     ($many ($one-of #[ \t])))
   (define comma  ($seq ws ($char #\,) ws))
@@ -569,8 +628,10 @@
              record "\"a\" , b  , c")
   (test-succ "CSV" '("a  \" \n" "b" "c")
              record "\"a  \"\" \n\" , b  , c"))
+|#
 
 ;; hand-tuned version
+#|
 (let ()
   (define ws     ($skip-many ($one-of #[ \t])))
   (define comma  ($seq ws ($char #\,) ws))
@@ -596,8 +657,10 @@
              records "\"a \" , b  , c\r\n\"zzz\nyyy \", \" w \"\" \"\r\n")
   (test-succ "CSV 2" '(("a  \" \n" "b" "c"))
              records "\"a  \"\" \n\" , b  , c"))
+|#
 
 ;; Poor-man's XML parser
+#|
 (letrec ((open-tag ($->rope ($between ($char #\<) alphanum ($char #\>))))
          (close-tag (lambda (tagname)
                       ($seq ($string "</") ($string tagname) ($char #\>))))
@@ -615,6 +678,7 @@
              element "<a></a>")
   (test-succ "tag element" '("a" "foo" ("b" "bar") "baz")
              element "<a>foo<b>bar</b>baz</a>"))
+|#
 
 ;; Calculator
 (letrec ((integer ($do (v ($many digit 1))
@@ -632,6 +696,7 @@
   (test-succ "calculator" -1 expr "1-2"))
 
 
+#|
 ;;;============================================================
 ;;; rfc.json
 ;;;   Test is here since the module uses parser.peg.
@@ -774,5 +839,7 @@
   (t '#(1 2 x))
   (t '(("a" . 2) (3 . "b")))
   (t '(("a" . 2) 9)))
+|#
 
-(test-end)
+;(test-end)
+(test-results)
