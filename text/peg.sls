@@ -1,3 +1,55 @@
+(library (yuni text peg)
+         (export
+           parse-success? parse-failure?
+           stream-position
+;           <parse-error>
+           &parse-error
+           parse-error?
+
+           result-value
+           result-next
+           failure-type
+           failure-message
+           failure-position
+           parse-string
+           $return $fail $expect 
+           $do $cut $seq $or $many $skip-many
+           $repeat $optional
+
+           $alternate
+
+           $sep-by $end-by $sep-end-by
+           $count $between
+           $not $many-till $chain-left $chain-right
+           $lazy
+           $string $string-ci
+           $char $one-of $none-of
+           $satisfy
+
+           ;; newline was removed
+           anychar upper lower letter alphanum digit
+           hexdigit tab space spaces eof
+
+           $->rope semantic-value-finalize!
+
+           ;; add
+           cr lf 
+           )
+         (import (rnrs)
+                 (yuni core)
+                 (yuni util binding-constructs)
+                 (only (srfi :1)
+                       append-map
+                       append!
+                       reverse!)
+                 (only (srfi :13) string-drop)
+                 (srfi :8)
+                 (srfi :14)
+                 (srfi :26)
+                 (srfi :31)
+                 (srfi :48)
+                 (match) ;; mosh only
+                 )
 ;;;
 ;;; peg.scm - Parser Expression Grammar Parser
 ;;;
@@ -31,6 +83,7 @@
 ;;;   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;
 
+#|
 (define-module peg-orig
   (use srfi-1)
   (use srfi-13)
@@ -69,6 +122,7 @@
 (select-module peg-orig)
 
 (debug-print-width 1024)
+|#
 
 ;;;============================================================
 ;;; How is EBNF represented in the PEG library?
@@ -101,6 +155,7 @@
 ;; result ::= ('success <semantic-value> <stream>)
 ;; error ::= ('fail <failure-type> <message-string> <position>)
 
+#|
 (define-condition-type <parse-error> <error> #f
   (position))
 
@@ -108,6 +163,12 @@
   (format out "#<<parse-error> ~a ~S>"
           (ref o 'position)
           (ref o 'message)))
+|#
+
+(define-condition-type &parse-error &condition
+                       make-parse-error-condition parse-error?
+                       (position parse-error-position)
+                       (message parse-error-message))
 
 (define (parse-success? obj)
   (and (vector? obj)
@@ -143,16 +204,22 @@
   (let1 r (parse (make-string-stream str))
     (if (parse-success? r)
       (semantic-value-finalize! (result-value r))
-      (raise (make-condition <parse-error>
-               'position (failure-position r)
-               'message (error->string r))))))
+      (raise (make-parse-error-condition 
+               (failure-position r)
+               (error->string r))))))
 
 ;;;============================================================
 ;;; Lazily-constructed string
 ;;;
+
+#|
 (define-class <rope> ()
   ((tree :init-keyword :tree)))
+|#
 
+(define* <rope> (tree))
+
+#|
 (define (rope->string obj)
   (define (traverse obj)
     (cond ((is-a? obj <rope>)
@@ -163,23 +230,39 @@
           (else (error "don't know how to write:" obj))))
   (with-output-to-string
    (lambda () (traverse obj))))
+|#
+
+(define (rope->string obj)
+  (define (traverse obj port)
+    (cond ((is-a? obj <rope>)
+           (let-with obj (tree)
+             (traverse tree port)))
+          ((list? obj) (map (cut traverse <> port) obj))
+          ((string? obj) (display obj port))
+          ((char? obj) (display obj port))
+          (else (error "don't know how to write:" obj))))
+  (receive (p pr) (open-string-output-port)
+    (traverse obj p)
+    (pr)))
 
 (define (make-rope obj)
-  (make <rope> :tree obj))
+  (make <rope>
+        (tree obj)))
 
 ;;;============================================================
 ;;; Input Stream
 ;;;
 
-;;(define (make-string-stream str)
-;;  (let loop ((str str) (pos 0))
-;;    (lambda ()
-;;      (if (zero? (string-length str))
-;;        (let loop () (values #f pos loop))
-;;        (values (string-ref str 0)
-;;                pos
-;;                (loop (string-drop str 1) (+ pos 1)))))))
+(define (make-string-stream str)
+  (let loop ((str str) (pos 0))
+    (lambda ()
+      (if (zero? (string-length str))
+        (let loop () (values #f pos loop))
+        (values (string-ref str 0)
+                pos
+                (loop (string-drop str 1) (+ pos 1)))))))
 
+#|
 (define (make-string-stream str)
   (let loop ((ptr (make-string-pointer str)))
     (lambda ()
@@ -190,9 +273,13 @@
           (let1 new-ptr (string-pointer-copy ptr)
             (string-pointer-next! new-ptr)
             (values c pos (loop new-ptr))))))))
+|#
 
+;(define (stream-position s)
+;  (values-ref (s) 1))
 (define (stream-position s)
-  (values-ref (s) 1))
+  (call-with-values (cut s)
+                    (lambda (c pos x) pos)))
 
 ;;;============================================================
 ;;; Primitives
@@ -245,7 +332,7 @@
 ;;;
 (define-syntax $do
   (syntax-rules ()
-    (($do :: var clause ...)
+    (($do "sep" var clause ...)
      (begin ($cut var) ($do clause ...)))
     (($do ((parse))) parse)
     (($do parse) parse)
@@ -265,7 +352,7 @@
     (($do c0 c1 c2 ...)
      ($do (c0) c1 c2 ...))
     (($do . rest)
-     (syntax-error "malformed $do binding form:" rest))))
+     (syntax-violation #f "malformed $do binding form:" rest))))
 
 (define-syntax $or
   (syntax-rules (quote)
@@ -347,7 +434,8 @@
         (let1 r (parse s)
           (cond ((parse-success? r)
                  (let1 r2 (($many ($do sep parse)
-                                  (clamp (- min 1) 0)
+                                  (let ((r (- min 1))); (clamp (- min 1) 0)
+                                    (if (< r 0) 0 r))
                                   (and max (- max 1)))
                            (result-next r))
                    (if (parse-success? r2)
@@ -379,7 +467,7 @@
 (define ($not parse)
   (lambda (s)
     (($or 'grp
-          ($do (v parse) :: grp ($unexpect v (stream-position s)))
+          ($do (v parse) "sep" grp ($unexpect v (stream-position s)))
           ($return #f))
      s)))
 
@@ -483,15 +571,18 @@
      (define proc
        ($expect ($one-of charset) expect)))))
 
-(define-char-parser upper    #[A-Z]         "upper case letter")
-(define-char-parser lower    #[a-z]         "lower case letter")
-(define-char-parser letter   #[A-Za-z]      "letter")
-(define-char-parser alphanum #[A-Za-z0-9]   "letter or digit")
-(define-char-parser digit    #[0-9]         "digit")
-(define-char-parser hexdigit #[0-9A-Fa-f]   "hexadecimal digit")
-(define-char-parser newline  #[\n]          "newline")
-(define-char-parser tab      #[\t]          "tab")
-(define-char-parser space    #[ \v\f\t\r\n] "space")
+(define-char-parser upper    char-set:upper-case         "upper case letter")
+(define-char-parser lower    char-set:lower-case         "lower case letter")
+(define-char-parser letter   char-set:letter      "letter")
+(define-char-parser alphanum char-set:letter+digit   "letter or digit")
+(define-char-parser digit    char-set:digit         "digit")
+(define-char-parser hexdigit char-set:hex-digit   "hexadecimal digit")
+;(define-char-parser newline  #[\n]          "newline")
+(define-char-parser cr (list->char-set '(#\return))          "carrige-return")
+(define-char-parser lf (list->char-set '(#\linefeed))          "linefeed")
+(define-char-parser tab      (list->char-set '(#\tab))          "tab")
+;(define-char-parser space    #[ \v\f\t\r\n] "space")
+(define-char-parser space    (list->char-set '(#\space #\tab #\vtab #\return #\linefeed)) "space")
 
 (define spaces ($->rope ($many space)))
 
@@ -506,3 +597,4 @@
 ;; Token Parsers
 ;;
 
+)
