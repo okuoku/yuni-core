@@ -38,6 +38,7 @@
 
 (import (rnrs) 
         (only (srfi :1) every)
+        (srfi :14)
         (srfi :26)
         (srfi :8)
         (mosh test)
@@ -53,6 +54,9 @@
 (use parser.peg)
 (test-module 'parser.peg)
 |#
+
+(define a-to-b (list->char-set '(#\a #\b)))
+(define a-to-c (list->char-set '(#\a #\b #\c)))
 
 ;;;============================================================
 ;;; helper macros
@@ -141,11 +145,11 @@
 (test-fail "$string)" '(0 "ABC") ($string "ABC") "012")
 (test-succ "$char" #\a ($char #\a) "abc")
 (test-fail "$char" '(0 #\a) ($char #\a) "012")
+(test-succ "$one-of" #\j ($one-of char-set:lower-case) "j")
+(test-fail "$one-of" '(0 char-set:upper-case) ($one-of char-set:upper-case) "j")
+(test-succ "$none-of" #\j ($none-of char-set:upper-case) "j")
 #|
-(test-succ "$one-of" #\j ($one-of #[a-z]) "j")
-(test-fail "$one-of" '(0 #[A-Z]) ($one-of #[A-Z]) "j")
-(test-succ "$none-of" #\j ($none-of #[A-Z]) "j")
-(test-fail "$none-of" '(0 #[^a-z]) ($none-of #[a-z]) "j")
+(test-fail "$none-of" '(0 "#[^a-z]") ($none-of char-set:lower-case) "j")
 |#
 (test-succ "$string-ci" "aBC" ($string-ci "abc") "aBCdef")
 (test-fail "$string-ci" '(0 "abc") ($string-ci "abc") "012")
@@ -325,9 +329,9 @@
 #|
 ;; $skip-many
 (test-succ "$skip-many" #\a
-           ($seq ($skip-many ($string "a") 1 2) ($one-of #[a-z])) "aaaaa")
+           ($seq ($skip-many ($string "a") 1 2) ($one-of char-set:lower-case)) "aaaaa")
 (test-succ "$skip-many" #\b
-           ($seq ($skip-many ($string "a")) ($one-of #[a-z])) "baaaaa")
+           ($seq ($skip-many ($string "a")) ($one-of char-set:lower-case)) "baaaaa")
 |#
 
 ;; $repeat
@@ -348,75 +352,73 @@
 #|
 ;; $sep-by
 (test-succ "$sep-by" '(#\a #\b)
-           ($sep-by ($one-of #[ab]) ($string ","))
+           ($sep-by ($one-of a-to-b) ($string ","))
            "a,b")
 
-(test-fail "$sep-by" '(2 #[ab])
-           ($sep-by ($one-of #[ab]) ($string ","))
+(test-fail "$sep-by" '(2 a-to-b)
+           ($sep-by ($one-of a-to-b) ($string ","))
            "a,c")
 
 (test-succ "$sep-by" '(#\a #\b)
-           ($sep-by ($one-of #[abc]) ($string ",") 0 2)
+           ($sep-by ($one-of a-to-c) ($string ",") 0 2)
            "a,b,c,d")
 
-(test-fail "$sep-by" '(2 #[abc])
-           ($sep-by ($one-of #[abc]) ($string ",") 2 3)
+(test-fail "$sep-by" '(2 a-to-c)
+           ($sep-by ($one-of a-to-c) ($string ",") 2 3)
            "a,2,3")
 |#
 
 #|
 ;; $end-by
 (test-succ "$end-by" '(#\a #\b)
-           ($end-by ($one-of #[a-z]) ($string ","))
+           ($end-by ($one-of char-set:lower-case) ($string ","))
            "a,b,")
 |#
 
 ;; $sep-end-by
 #|
-(let ((p ($sep-end-by ($seq ($one-of #[a-z]) ($one-of #[a-z])) ($string ","))))
+(let ((p ($sep-end-by ($seq ($one-of char-set:lower-case) ($one-of char-set:lower-case)) ($string ","))))
   (define (succ in exp) (test-succ "$sep-end-by" exp p in))
   (define (fail in exp) (test-fail "$sep-end-by" exp p in))
 
   (succ "ZZ" '())
   (succ ""   '())
-  (fail "aZ" '(1 #[a-z]))
+  (fail "aZ" '(1 char-set:lower-case))
   (succ "aa"  '(#\a))
   (succ "bb," '(#\b))
   (succ "cc,Z" '(#\c))
-  (fail "cc,dZ" '(4 #[a-z]))
+  (fail "cc,dZ" '(4 char-set:lower-case))
   (succ "ee,ff," '(#\e #\f))
   (succ "ggZ"  '(#\g))
   (succ "hh,," '(#\h))
   (succ "ii,jjZ"  '(#\i #\j))
-  (fail "kk,ll,mZ" '(7 #[a-z]))
+  (fail "kk,ll,mZ" '(7 char-set:lower-case))
 
   (test-succ "$sep-end-by (min)" '(#\a #\b)
-             ($sep-end-by ($seq ($one-of #[a-z]) ($one-of #[a-z]))
+             ($sep-end-by ($seq ($one-of char-set:lower-case) ($one-of char-set:lower-case))
                           ($string ",") 2)
              "aa,bb")
   (test-succ "$sep-end-by (min)" '(#\a #\b)
-             ($sep-end-by ($seq ($one-of #[a-z]) ($one-of #[a-z]))
+             ($sep-end-by ($seq ($one-of char-set:lower-case) ($one-of char-set:lower-case))
                           ($string ",") 2)
              "aa,bb,")
   (test-fail "$sep-end-by (min)" '(5 ",")
-             ($sep-end-by ($seq ($one-of #[a-z]) ($one-of #[a-z]))
+             ($sep-end-by ($seq ($one-of char-set:lower-case) ($one-of char-set:lower-case))
                           ($string ",") 3)
              "aa,bb")
-  (test-fail "$sep-end-by (min)" '(6 #[a-z])
-             ($sep-end-by ($seq ($one-of #[a-z]) ($one-of #[a-z]))
+  (test-fail "$sep-end-by (min)" '(6 char-set:lower-case)
+             ($sep-end-by ($seq ($one-of char-set:lower-case) ($one-of char-set:lower-case))
                           ($string ",") 3)
              "aa,bb,")
   )
 |#
 
-#|
 ;; $count
 (test-succ "$count" '(#\a #\b)
-           ($count ($one-of #[ab]) 2) "abab")
+           ($count ($one-of a-to-b) 2) "abab")
 
-(test-fail "$count" '(1 #[ab])
-           ($count ($one-of #[ab]) 2) "a012")
-|#
+(test-fail "$count" '(1 a-to-b)
+           ($count ($one-of a-to-b) 2) "a012")
 
 ;; $between
 (test-succ "$between" "foo"
@@ -431,15 +433,13 @@
                      ($string ")"))
            "(foo]")
 
-#|
 ;; $not
 (test-succ "$not" #f
-           ($not ($one-of #[a-z]))
+           ($not ($one-of char-set:lower-case))
            "ABC")
 (test-fail "$not" '(0 #\a)
-           ($not ($one-of #[a-z]))
+           ($not ($one-of char-set:lower-case))
            "abc")
-|#
 
 ;; $many-till
 (test-succ "$many-till" '(#\a #\b)
@@ -449,19 +449,19 @@
 #|
 ;; $many-chars
 (test-succ "$many-chars" '(#\c #\b #\a)
-           ($many-chars #[a-c])
+           ($many-chars a-to-c)
            "cbad")
 (test-succ "$many-chars" '()
-           ($many-chars #[a-c])
+           ($many-chars a-to-c)
            "ABCD")
 (test-succ "$many-chars" '(#\c #\b #\a)
-           ($many-chars #[a-c] 2 5)
+           ($many-chars a-to-c 2 5)
            "cbad")
-(test-fail "$many-chars" '(3 #[a-c])
-           ($many-chars #[a-c] 4 5)
+(test-fail "$many-chars" '(3 a-to-c)
+           ($many-chars a-to-c 4 5)
            "cbad")
 (test-succ "$many-chars" '(#\c #\b)
-           ($many-chars #[a-c] 0 2)
+           ($many-chars a-to-c 0 2)
            "cbad")
 |#
 
@@ -505,10 +505,10 @@
 (test-fail "$lazy" '(0 #\a)
            ($lazy ($char #\a)) "b")
 
+#|
 ;;;============================================================
 ;;; Backtrack control
 ;;;
-#|
 (test-section "backtrack control")
 
 (test-succ "$or and $try" "abc"
@@ -520,7 +520,8 @@
            "abcdefg")
 
 (let1 parser ($or ($do [foo ($try ($do [v ($string "abc")]
-                                       [($one-of #[+-])]
+                                       ;[($one-of #[+-])]
+                                       [($one-of (list->char-set '(#\+ #\-)))]
                                        ($return v)))]
                        [bar ($string "foo")]
                        ($return (list foo bar)))
@@ -595,31 +596,36 @@
       (test-succ #`"number(1) \",str\"" #t p str)
       (test-fail #`"number(1) \",str\"" (car fails?) p str)))
   (%test "27652") (%test "-27652") (%test "+27652")
-  (%test "" '(0 #[0-9])) (%test "-" '(1 #[0-9])) (%test "+" '(1 #[0-9]))
+  (%test "" '(0 char-set:digit)) (%test "-" '(1 char-set:digit)) (%test "+" '(1 char-set:digit))
   (%test "+27.46") (%test "0.46")
-  (%test ".46" '(0 #[0-9]))
-  (%test "0..3" '(2 #[0-9]))
+  (%test ".46" '(0 char-set:digit))
+  (%test "0..3" '(2 char-set:digit))
   (%test "0.4.2" '(3 "end of input"))
   (%test "3e5")
   (%test "3.0e5")
-  (%test "3.e5" '(2 #[0-9]))
+  (%test "3.e5" '(2 char-set:digit))
   (%test "3e-53")
   (%test "3e+53")
   (%test "-3.0e+53")
-  (%test "-3.0e+" '(6 #[0-9]))
+  (%test "-3.0e+" '(6 char-set:digit))
   )
 |#
 
 ;; CSV parser
-#|
 (let ()
-  (define ws     ($many ($one-of #[ \t])))
+  ;(define ws     ($many ($one-of #[ \t])))
+  (define ws     ($many ($one-of (list->char-set '(#\space #\tab)))))
   (define comma  ($seq ws ($char #\,) ws))
   (define dquote ($char #\"))
   (define double-dquote ($do [($string "\"\"")] ($return #\")))
-  (define quoted-body ($many ($or double-dquote ($one-of #[^\"]))))
+  ;(define quoted-body ($many ($or double-dquote ($one-of #[^\"]))))
+  (define quoted-body ($many ($or double-dquote 
+                                  ;($one-of #[^\"])
+                                  ($none-of (list->char-set '(#\\ #\")))
+                                  )))
   (define quoted ($between dquote quoted-body dquote))
-  (define unquoted ($many-till anychar ($or comma newline)))
+  ;(define unquoted ($many-till anychar ($or comma newline)))
+  (define unquoted ($many-till anychar ($or comma cr lf)))
   (define field ($or quoted unquoted))
   (define record ($sep-by ($->rope field) comma))
   (test-succ "CSV" '("a" "b" "c")
@@ -628,7 +634,6 @@
              record "\"a\" , b  , c")
   (test-succ "CSV" '("a  \" \n" "b" "c")
              record "\"a  \"\" \n\" , b  , c"))
-|#
 
 ;; hand-tuned version
 #|
