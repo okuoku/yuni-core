@@ -1,7 +1,10 @@
 (library (yuni util tables)
          (export 
+           =>
            define-static-table)
-         (import (rnrs))
+         (import 
+           (for (yuni util tables internal) run expand)
+           (for (rnrs) run expand))
 
 ;; table syntax
 ;;
@@ -10,61 +13,37 @@
 ;;   #(FIELD-NAMES*)
 ;;   (FIELDS*)*)
 
-
-(define-syntax genlookup-loop
+(define-syntax emit-converter-syntax
   (lambda (x)
-    (define (getidx fld sym)
-      (define (itr idx cur)
-        (if (pair? cur)
-          (let ((a (car cur))
-                (rest (cdr cur)))
-            (if (eq? a sym)
-              idx
-              (itr (+ 1 idx) rest)))
-          (syntax-violation #f "invalid argument" fld sym)))
-      (itr 0 fld))
-    (syntax-case x ()
-      ((_ fields sym)
-       (let* ((f (vector->list (syntax->datum #'fields)))
-              (i (getidx f (syntax->datum #'sym))))
-         (datum->syntax #'x i))))))
-
-(define-syntax generate-field-lookup
-  (syntax-rules ()
-    ((_ fields sym)
-     (lambda (x) (vector-ref x (generate-field-idx fields sym))))))
-
-(define-syntax generate-field-idx
-  (syntax-rules ()
-    ((_ #(field-name0 ...) sym)
-     (genlookup-loop #(field-name0 ...) sym))))
+    (syntax-case x (=>)
+      ((_ (name lookup => return) field-names orig-data)
+       #'(define-syntax name
+           (lambda (y)
+             (define my-field-data 'orig-data)
+             (define-converter1 (conv lookup => return equal?) field-names my-field-data)
+             (syntax-case y ()
+               ((_ input)
+                (datum->syntax #'y
+                               (list 'quote
+                                     (conv (syntax->datum #'input))))))))))))
 
 (define-syntax emit-converter1
   (syntax-rules (=>)
-    ((_ (name lookup => return) field-names field-data)
-     (emit-converter1 (name lookup => return equal?) field-names field-data))
-    ((_ (name lookup => return pred) field-names field-data)
-     (define (name x)
-       (define get/lookup (generate-field-lookup field-names lookup))
-       (define get/return (generate-field-lookup field-names return))
-       (define (itr cur)
-         (if (pair? cur)
-           (let ((a (car cur))
-                 (rest (cdr cur)))
-             (if (pred (get/lookup a) x)
-               (get/return a)
-               (itr rest)))
-           #f))
-       (itr field-data)))))
+    ((_ #(name lookup => return) field-names field-data orig-data)
+     (emit-converter-syntax (name lookup => return) field-names orig-data))
+    ((_ (name lookup => return) field-names field-data orig-data)
+     (emit-converter1 (name lookup => return equal?) field-names field-data orig-data))
+    ((_ (name lookup => return pred) field-names field-data orig-data)
+     (define-converter1 (name lookup => return pred) field-names field-data))))
 
 (define-syntax emit-converters
   (syntax-rules ()
-    ((_ (convspec0) field-names field-data)
-     (emit-converter1 convspec0 field-names field-data))
-    ((_ (convspec0 convspec1 ...) field-names field-data)
+    ((_ (convspec0) field-names field-data orig-data)
+     (emit-converter1 convspec0 field-names field-data orig-data))
+    ((_ (convspec0 convspec1 ...) field-names field-data orig-data)
      (begin
-       (emit-converter1 convspec0 field-names field-data)
-       (emit-converters (convspec1 ...) field-names field-data)))))
+       (emit-converter1 convspec0 field-names field-data orig-data)
+       (emit-converters (convspec1 ...) field-names field-data orig-data)))))
 
 (define-syntax define-static-table
   (syntax-rules ()
@@ -73,6 +52,9 @@
     ((_ name (convspec ...) #(field-name ...) (fields ...) ...)
      (begin
        (define field-data '(#(fields ...) ...))
-       (emit-converters (convspec ...) #(field-name ...) field-data)))))
+       (emit-converters (convspec ...) #(field-name ...) 
+                        field-data ;; for run-time lookup
+                        (#(fields ...) ...) ;; for expand-time lookup
+                        )))))
 
 )
